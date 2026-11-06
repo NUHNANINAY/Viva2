@@ -1,0 +1,6 @@
+{
+  "name": "VİVA SİTE - Lüks Site ve Rezidans Yönetimi",
+  "description": "VİVA SİTE, modern rezidans ve siteler için tasarlanmış lüks mobil öncelikli site yönetim, güvenlik, misafir, sipariş ve kargo takip platformudur.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
