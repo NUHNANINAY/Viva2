@@ -1,0 +1,230 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper to validate document IDs
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    // Authentication check: ensures real Firebase Auth token exists
+    function isAuthenticated() {
+      return request.auth != null && isValidId(request.auth.uid);
+    }
+
+    // Retrieve caller's verified profile from /users/{uid}
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    // Check if user has an active profile document
+    function hasActiveProfile() {
+      return isAuthenticated() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        getUserData().isActive == true;
+    }
+
+    // Site membership check
+    function isSiteMember(siteId) {
+      return hasActiveProfile() && getUserData().siteId == siteId;
+    }
+
+    // Site Admin: verified against site admins collection or bootstrap superadmin UID/email
+    function isSiteAdmin(siteId) {
+      return isAuthenticated() && (
+        exists(/databases/$(database)/documents/sites/$(siteId)/admins/$(request.auth.uid)) ||
+        (request.auth.token.email == 'nuhnaninay@gmail.com' && isSiteMember(siteId))
+      );
+    }
+
+    // Site Security Gate: gate operations, deliveries, guests, facility entries
+    function isSiteSecurity(siteId) {
+      return isSiteMember(siteId) && (getUserData().role == 'security' || isSiteAdmin(siteId));
+    }
+
+    // Site Staff: staff members, guards, and managers
+    function isSiteStaff(siteId) {
+      return isSiteMember(siteId) && (getUserData().role == 'staff' || isSiteSecurity(siteId) || isSiteAdmin(siteId));
+    }
+
+    // Unit Resident: verified resident of this specific block and apartment
+    function isUnitResident(siteId, block, apt) {
+      return isSiteMember(siteId) &&
+        getUserData().role == 'resident' &&
+        getUserData().block == block &&
+        getUserData().apartment == apt;
+    }
+
+    // Default deny catch-all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // User session & profile document: stores role, siteId, unit info
+    match /users/{userId} {
+      // User can read their own profile; admins can read profiles for their site
+      allow get: if isAuthenticated() && (
+        request.auth.uid == userId ||
+        (hasActiveProfile() && getUserData().role == 'admin' && getUserData().siteId == resource.data.siteId)
+      );
+      allow list: if isAuthenticated() && hasActiveProfile() && getUserData().role == 'admin';
+      
+      // REGISTRATION RULE: Normal users can ONLY create as resident. Staff/Admin roles cannot be self-assigned!
+      allow create: if isAuthenticated() && request.auth.uid == userId && (
+        request.resource.data.role == 'resident' ||
+        (request.auth.token.email == 'nuhnaninay@gmail.com' && request.resource.data.role == 'admin')
+      );
+
+      // IMMUTABILITY RULE: role, siteId, block, and apartment CANNOT be modified by client update!
+      allow update: if isAuthenticated() && request.auth.uid == userId
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['role', 'siteId', 'block', 'apartment']);
+
+      allow delete: if isAuthenticated() && (
+        request.auth.uid == userId ||
+        (hasActiveProfile() && getUserData().role == 'admin')
+      );
+    }
+
+    // Site root documents
+    match /sites/{siteId} {
+      // Any authenticated user or visitor can list registered sites and view basic profile for selection
+      allow get: if isValidId(siteId);
+      allow list: if true;
+      allow create: if isAuthenticated();
+      allow update, delete: if isSiteAdmin(siteId);
+
+      // Invite codes subcollection (Tek kullanımlık daire davet kodları)
+      match /inviteCodes/{codeId} {
+        allow get: if isAuthenticated();
+        allow list: if isSiteAdmin(siteId);
+        allow create, update, delete: if isSiteAdmin(siteId);
+      }
+
+      // 1. Residents subcollection
+      match /residents/{residentId} {
+        allow get: if isSiteAdmin(siteId) || isSiteSecurity(siteId) ||
+          (isSiteMember(siteId) && (resource.data.id == residentId || (resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment)));
+        allow list: if isSiteAdmin(siteId) || isSiteSecurity(siteId);
+        
+        allow create: if isAuthenticated() && (
+          isSiteAdmin(siteId) ||
+          (isSiteMember(siteId) && request.resource.data.block == getUserData().block && request.resource.data.apartment == getUserData().apartment)
+        );
+        allow update: if isSiteAdmin(siteId) ||
+          (isSiteMember(siteId) && resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment
+            && request.resource.data.siteId == resource.data.siteId
+            && request.resource.data.block == resource.data.block
+            && request.resource.data.apartment == resource.data.apartment);
+        allow delete: if isSiteAdmin(siteId);
+      }
+
+      // 2. Guards subcollection
+      match /guards/{guardId} {
+        allow get, list: if isSiteAdmin(siteId) || isSiteSecurity(siteId);
+        allow create, update, delete: if isSiteAdmin(siteId);
+      }
+
+      // 3. Admins subcollection (RESTRICTED: write strictly protected)
+      match /admins/{adminId} {
+        allow get, list: if isSiteAdmin(siteId);
+        allow write: if false; // Only server-side or superadmin bootstrap
+      }
+
+      // 4. Guests subcollection
+      match /guests/{guestId} {
+        allow get: if isSiteAdmin(siteId) || isSiteSecurity(siteId) ||
+          (isSiteMember(siteId) && resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment);
+        allow list: if isSiteAdmin(siteId) || isSiteSecurity(siteId) ||
+          (isSiteMember(siteId) && resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment);
+        allow create: if isSiteAdmin(siteId) || isSiteSecurity(siteId) ||
+          (isSiteMember(siteId) && request.resource.data.block == getUserData().block && request.resource.data.apartment == getUserData().apartment);
+        
+        // IMMUTABILITY: Cannot re-assign guest to another apartment or site!
+        allow update: if (isSiteAdmin(siteId) || isSiteSecurity(siteId) ||
+          (isSiteMember(siteId) && resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment))
+          && request.resource.data.siteId == resource.data.siteId
+          && request.resource.data.block == resource.data.block
+          && request.resource.data.apartment == resource.data.apartment;
+
+        allow delete: if isSiteAdmin(siteId) ||
+          (isSiteMember(siteId) && resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment);
+      }
+
+      // 5. Orders / Courier subcollection
+      match /orders/{orderId} {
+        allow get: if isSiteAdmin(siteId) || isSiteSecurity(siteId) ||
+          (isSiteMember(siteId) && resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment);
+        allow list: if isSiteAdmin(siteId) || isSiteSecurity(siteId) ||
+          (isSiteMember(siteId) && resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment);
+        allow create: if isSiteAdmin(siteId) || isSiteSecurity(siteId);
+        
+        allow update: if (isSiteAdmin(siteId) || isSiteSecurity(siteId) ||
+          (isSiteMember(siteId) && resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment))
+          && request.resource.data.siteId == resource.data.siteId
+          && request.resource.data.block == resource.data.block
+          && request.resource.data.apartment == resource.data.apartment;
+
+        allow delete: if isSiteAdmin(siteId);
+      }
+
+      // 6. Cargos subcollection
+      match /cargos/{cargoId} {
+        allow get: if isSiteAdmin(siteId) || isSiteSecurity(siteId) ||
+          (isSiteMember(siteId) && resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment);
+        allow list: if isSiteAdmin(siteId) || isSiteSecurity(siteId) ||
+          (isSiteMember(siteId) && resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment);
+        allow create: if isSiteAdmin(siteId) || isSiteSecurity(siteId);
+        
+        allow update: if (isSiteAdmin(siteId) || isSiteSecurity(siteId) ||
+          (isSiteMember(siteId) && resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment))
+          && request.resource.data.siteId == resource.data.siteId
+          && request.resource.data.block == resource.data.block
+          && request.resource.data.apartment == resource.data.apartment;
+
+        allow delete: if isSiteAdmin(siteId);
+      }
+
+      // 7. Suggestions subcollection
+      match /suggestions/{suggestionId} {
+        allow get, list: if isSiteMember(siteId);
+        allow create: if isSiteMember(siteId);
+        allow update, delete: if isSiteAdmin(siteId);
+      }
+
+      // 8. Facility entries subcollection (TESİS / TEDARİKÇİ)
+      match /facilityEntries/{facilityId} {
+        allow get, list: if isSiteAdmin(siteId) || isSiteSecurity(siteId);
+        allow create, update: if isSiteAdmin(siteId) || isSiteSecurity(siteId);
+        allow delete: if isSiteAdmin(siteId);
+      }
+
+      // 9. Staff subcollection (Tüm Personel Kadrosu)
+      match /staff/{staffId} {
+        allow get, list: if isSiteAdmin(siteId) || isSiteSecurity(siteId);
+        allow create, update, delete: if isSiteAdmin(siteId);
+      }
+
+      // 10. Time Records / Puantaj subcollection
+      match /timeRecords/{recordId} {
+        allow get, list: if isSiteAdmin(siteId) || isSiteSecurity(siteId);
+        allow create, update: if isSiteAdmin(siteId) || isSiteSecurity(siteId);
+        allow delete: if isSiteAdmin(siteId);
+      }
+
+      // 11. Payroll Records / Bordro subcollection (Maaş & Bordro - Sadece Admin)
+      match /payrollRecords/{recordId} {
+        allow get, list: if isSiteAdmin(siteId);
+        allow create, update, delete: if isSiteAdmin(siteId);
+      }
+
+      // 12. Dues & Debt / Aidat ve Borçlar subcollection
+      match /dues/{dueId} {
+        // Admin can read all. Resident can ONLY read their own apartment's dues!
+        allow get: if isSiteAdmin(siteId) ||
+          (isSiteMember(siteId) && resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment);
+        allow list: if isSiteAdmin(siteId) ||
+          (isSiteMember(siteId) && resource.data.block == getUserData().block && resource.data.apartment == getUserData().apartment);
+        allow create, update, delete: if isSiteAdmin(siteId);
+      }
+    }
+  }
+}

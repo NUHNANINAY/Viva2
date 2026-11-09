@@ -5,350 +5,198 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import {
-  Package,
-  CheckCircle2,
-  Clock,
-  Shield,
-  Truck,
-  Plus,
-  Inbox,
-  AlertCircle,
-  KeyRound,
-  ShieldAlert,
-  ShieldCheck,
-  ArrowRight,
-} from 'lucide-react';
-import { CARGO_CARRIERS } from '../../data/initialData';
-import { CargoCarrier, CargoDeliveryOption, CargoPackage } from '../../types';
+import { Package, CheckCircle2, Clock, Shield, Home, Key, X, Info } from 'lucide-react';
+import { ResidentCargoPreference } from '../../types';
 
 export const CargoTab: React.FC = () => {
-  const {
-    cargoList,
-    deliverCargoToResident,
-    respondCargoDelivery,
-    addCargo,
-    residentUser,
-  } = useApp();
+  const { cargoList, residentUser, respondToCargoPreference } = useApp();
 
-  const [isPreOrderOpen, setIsPreOrderOpen] = useState(false);
-  const [carrier, setCarrier] = useState<CargoCarrier>('Trendyol');
-  const [deliveryOption, setDeliveryOption] = useState<CargoDeliveryOption>('hold_at_security');
-  const [trackingCode, setTrackingCode] = useState('');
-  const [notes, setNotes] = useState('');
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
+  // SMS Modal for inline response
+  const [activeCargoIdForSms, setActiveCargoIdForSms] = useState<string | null>(null);
+  const [smsCode, setSmsCode] = useState('');
 
-  // In-tab SMS Modal state if resident answers from this tab
-  const [smsModalCargo, setSmsModalCargo] = useState<CargoPackage | null>(null);
-  const [smsInput, setSmsInput] = useState('');
-
-  // Resident's cargos for their specific block & apartment
   const myCargos = cargoList.filter(
     (c) => c.block === residentUser.block && c.apartment === residentUser.apartment
   );
 
-  const pendingResponse = myCargos.filter((c) => c.status === 'yanit_bekliyor');
-  const holdAtSecurity = myCargos.filter(
-    (c) =>
-      c.status === 'guvenlikte_emanet' ||
-      c.status === 'kodlu_onay' ||
-      c.status === 'kodsuz_onay' ||
-      c.status === 'fiziksel_teslim_alindi'
-  );
-  const outForDelivery = myCargos.filter(
-    (c) => c.status === 'eve_gonderilecek' || c.status === 'kurye_dagitimda'
-  );
-  const completed = myCargos.filter((c) => c.status === 'teslim_edildi');
-
-  const handlePreRegister = (e: React.FormEvent) => {
-    e.preventDefault();
-    addCargo({
-      trackingCode: trackingCode.trim() || `TY-${Math.floor(10000000 + Math.random() * 90000000)}`,
-      carrier,
-      block: residentUser.block,
-      apartment: residentUser.apartment,
-      recipientName: residentUser.name,
-      deliveryOption,
-      notes: notes.trim() || 'Sakin tarafından önceden bildirildi.',
-    });
-
-    setTrackingCode('');
-    setNotes('');
-    setIsPreOrderOpen(false);
-    setShowSuccessToast(true);
-    setTimeout(() => setShowSuccessToast(false), 3000);
+  const handleSelectPreference = (cargoId: string, pref: ResidentCargoPreference) => {
+    if (pref === 'emanet_kalsin') {
+      setActiveCargoIdForSms(cargoId);
+    } else {
+      respondToCargoPreference(cargoId, 'eve_gonderilsin');
+    }
   };
 
-  const handleSmsSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!smsModalCargo) return;
-    respondCargoDelivery(smsModalCargo.id, 'hold_at_security', smsInput.trim() || undefined);
-    setSmsModalCargo(null);
-    setSmsInput('');
+  const handleConfirmSms = () => {
+    if (activeCargoIdForSms) {
+      respondToCargoPreference(activeCargoIdForSms, 'emanet_kalsin', smsCode.trim());
+      setActiveCargoIdForSms(null);
+      setSmsCode('');
+    }
   };
 
   return (
-    <div className="space-y-6 pb-20">
-      {/* Tab Header Banner */}
-      <div className="p-4 rounded-2xl bg-[#1B1D25] border border-[#292B36] flex items-center justify-between shadow-md">
+    <div className="space-y-6 pb-8">
+      {/* Banner */}
+      <div className="p-4 sm:p-5 rounded-3xl bg-[#F7F8F5] border border-[#DDE5DF] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#292B36] text-[#C5A66A] flex items-center justify-center border border-[#C5A66A]/20 shadow-inner">
+          <div className="w-10 h-10 rounded-2xl bg-[#648875]/15 text-[#294C3C] flex items-center justify-center border border-[#648875]/30">
             <Package className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-[#EEE9DE]">Kargolarım & Emanet Takibi</h2>
-            <p className="text-xs text-[#EEE9DE]/60">Nizamiyeye gelen ve bekleyen paketleriniz</p>
+            <h2 className="text-base font-luxury font-bold text-[#294C3C]">
+              Kargo ve Emanet Paketlerim
+            </h2>
+            <p className="text-xs text-[#26342C]/65">
+              Nizamiyede teslim alınan paketlerinizi takip edin ve teslimat tercihinizi belirtin
+            </p>
           </div>
         </div>
-        <button
-          onClick={() => setIsPreOrderOpen(!isPreOrderOpen)}
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#292B36] hover:bg-[#C5A66A] hover:text-[#111318] text-xs font-semibold text-[#DFC38E] transition-all touch-target"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Kargo Bekliyorum</span>
-        </button>
+        <span className="text-xs text-[#648875] font-semibold bg-[#FFFFFF] px-3 py-1 rounded-full border border-[#DDE5DF] self-start sm:self-auto">
+          {residentUser.block} Blok D:{residentUser.apartment}
+        </span>
       </div>
 
-      {showSuccessToast && (
-        <div className="p-3.5 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4 shrink-0" />
-          <span>Kargo ön bildiriminiz güvenlik konsoluna eklendi. Paket ulaştığında talimatınız uygulanacaktır.</span>
-        </div>
-      )}
-
-      {/* Pre-Register Cargo Drawer */}
-      {isPreOrderOpen && (
-        <div className="p-5 rounded-2xl bg-[#1B1D25] border border-[#C5A66A]/40 space-y-4 animate-in slide-in-from-top-2">
-          <div className="flex items-center justify-between">
-            <h3 className="text-sm font-luxury font-bold text-[#DFC38E] uppercase tracking-wider">
-              Beklenen Kargo Ön Bildirimi
-            </h3>
-            <button
-              onClick={() => setIsPreOrderOpen(false)}
-              className="text-xs text-[#EEE9DE]/60 hover:text-[#EEE9DE]"
-            >
-              Kapat
-            </button>
-          </div>
-
-          <form onSubmit={handlePreRegister} className="space-y-3.5">
-            <div>
-              <label className="block text-xs font-semibold text-[#EEE9DE]/80 mb-1.5">
-                Kargo Taşıyıcı Firma
-              </label>
-              <select
-                value={carrier}
-                onChange={(e) => setCarrier(e.target.value as CargoCarrier)}
-                className="w-full px-3.5 py-2.5 rounded-xl bg-[#111318] border border-[#292B36] text-xs text-[#EEE9DE] focus:border-[#C5A66A] focus:outline-none"
-              >
-                {CARGO_CARRIERS.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[#EEE9DE]/80 mb-1">
-                Takip Numarası / Sipariş Kodu (Varsa)
-              </label>
-              <input
-                type="text"
-                placeholder="Örn: 984210452"
-                value={trackingCode}
-                onChange={(e) => setTrackingCode(e.target.value)}
-                className="w-full px-4 py-2 rounded-xl bg-[#111318] border border-[#292B36] focus:border-[#C5A66A] focus:outline-none text-xs text-[#DFC38E]"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[#EEE9DE]/80 mb-1.5">
-                Geldiğinde Ne Yapılsın?
-              </label>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  type="button"
-                  onClick={() => setDeliveryOption('hold_at_security')}
-                  className={`p-2.5 rounded-xl text-xs font-medium border text-left transition-all ${
-                    deliveryOption === 'hold_at_security'
-                      ? 'bg-[#292B36] border-[#C5A66A] text-[#DFC38E]'
-                      : 'bg-[#111318] border-[#292B36] text-[#EEE9DE]/60'
-                  }`}
-                >
-                  <p className="font-bold">Güvenlikte Emanet</p>
-                  <p className="text-[10px] text-[#EEE9DE]/50">Geldiğimde teslim alırım</p>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setDeliveryOption('send_to_apartment')}
-                  className={`p-2.5 rounded-xl text-xs font-medium border text-left transition-all ${
-                    deliveryOption === 'send_to_apartment'
-                      ? 'bg-[#292B36] border-[#C5A66A] text-[#DFC38E]'
-                      : 'bg-[#111318] border-[#292B36] text-[#EEE9DE]/60'
-                  }`}
-                >
-                  <p className="font-bold">Eve Gönderilsin</p>
-                  <p className="text-[10px] text-[#EEE9DE]/50">Kurye daireye çıksın</p>
-                </button>
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-[#EEE9DE]/80 mb-1">
-                Açıklama / Kurye Notu
-              </label>
-              <input
-                type="text"
-                placeholder="Örn: Kırılabilir ürün, lütfen düz tutun."
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="w-full px-4 py-2 rounded-xl bg-[#111318] border border-[#292B36] focus:border-[#C5A66A] focus:outline-none text-xs text-[#EEE9DE]"
-              />
-            </div>
-
-            <button
-              type="submit"
-              className="w-full py-2.5 rounded-xl bg-gradient-to-r from-[#C5A66A] to-[#DFC38E] text-[#111318] font-bold text-xs uppercase tracking-wider hover:brightness-110 active:scale-95 transition-all shadow-md touch-target"
-            >
-              Kargo Bildirimini Kaydet
-            </button>
-          </form>
-        </div>
-      )}
-
-      {/* 0. TERCİH BEKLEYEN YENİ KARGOLAR (YANIT BEKLİYOR) */}
-      {pendingResponse.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-amber-400" />
-            <h3 className="text-xs font-bold text-amber-300 uppercase tracking-wider">
-              Teslimat Tercihi Bekleyenler ({pendingResponse.length})
-            </h3>
-          </div>
-
-          <div className="space-y-3">
-            {pendingResponse.map((cargo) => (
-              <div
-                key={cargo.id}
-                className="p-5 rounded-2xl bg-[#1E1B18] border-2 border-[#C5A66A] space-y-3 shadow-xl"
-              >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-md bg-[#292B36] text-[#DFC38E] text-xs font-bold border border-[#C5A66A]/30">
-                        {cargo.carrier}
-                      </span>
-                      <span className="font-mono text-xs text-[#EEE9DE]/80">{cargo.trackingCode}</span>
-                    </div>
-                    <p className="text-xs text-[#EEE9DE]/60 mt-1">Ulaştı: {cargo.receivedAt}</p>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-950/60 text-amber-300 border border-amber-500/40">
-                    Yanıtınız Bekleniyor
-                  </span>
-                </div>
-
-                <p className="text-xs font-bold text-[#EEE9DE] leading-snug">
-                  "VİVA SİTE – Kargonuz güvenliğe ulaştı. Lütfen teslimat tercihinizi belirtiniz."
-                </p>
-
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  <button
-                    onClick={() => respondCargoDelivery(cargo.id, 'send_to_apartment')}
-                    className="py-2.5 px-3 rounded-xl bg-blue-950/70 hover:bg-blue-900 border border-blue-500/50 text-blue-200 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
-                  >
-                    <Truck className="w-3.5 h-3.5" />
-                    <span>EVE GÖNDERİLSİN</span>
-                  </button>
-
-                  <button
-                    onClick={() => setSmsModalCargo(cargo)}
-                    className="py-2.5 px-3 rounded-xl bg-emerald-950/70 hover:bg-emerald-900 border border-emerald-500/50 text-emerald-200 text-xs font-bold transition-all flex items-center justify-center gap-1.5"
-                  >
-                    <Shield className="w-3.5 h-3.5" />
-                    <span>GÜVENLİKTE EMANET</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 1. GÜVENLİKTE EMANET KALACAKLAR */}
+      {/* Cargo List */}
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Shield className="w-4 h-4 text-[#C5A66A]" />
-            <h3 className="text-xs font-bold text-[#DFC38E] uppercase tracking-wider">
-              Güvenlikte Emanet Bekleyenler ({holdAtSecurity.length})
-            </h3>
-          </div>
-          <span className="text-[11px] text-[#EEE9DE]/50">Nizamiyeden teslim alabilirsiniz</span>
+          <h3 className="text-xs font-bold text-[#294C3C] uppercase tracking-wider">
+            Paketlerim ({myCargos.length})
+          </h3>
+          <span className="text-[11px] text-[#26342C]/60">
+            Sürekli kargo kayıt kütüğü
+          </span>
         </div>
 
-        {holdAtSecurity.length === 0 ? (
-          <div className="p-5 text-center rounded-2xl bg-[#1B1D25] border border-[#292B36] text-[#EEE9DE]/50 text-xs">
-            Şu anda güvenlikte bekleyen emanet kargonuz bulunmamaktadır.
+        {myCargos.length === 0 ? (
+          <div className="p-8 sm:p-12 text-center rounded-3xl bg-[#FFFFFF] border-2 border-dashed border-[#DDE5DF] space-y-3">
+            <div className="w-14 h-14 rounded-2xl bg-[#F7F8F5] border border-[#DDE5DF] flex items-center justify-center mx-auto text-[#648875]">
+              <Package className="w-7 h-7 text-[#648875]" />
+            </div>
+            <div className="space-y-1 max-w-sm mx-auto">
+              <h4 className="text-sm font-bold text-[#294C3C]">Bekleyen Kargonuz Yok</h4>
+              <p className="text-xs text-[#26342C]/65 leading-relaxed">
+                Nizamiyeye kargonuz ulaştığında güvenlik tarafından sisteme işlenir ve kargonuzun eve mi gelmesi yoksa güvenlikte emanet mi kalması gerektiği size sorulur.
+              </p>
+            </div>
           </div>
         ) : (
-          <div className="space-y-2.5">
-            {holdAtSecurity.map((cargo) => (
+          <div className="space-y-3">
+            {myCargos.map((cargo) => (
               <div
                 key={cargo.id}
-                className="p-4 rounded-2xl bg-[#1B1D25] border border-[#C5A66A]/40 space-y-3 shadow-lg shadow-[#C5A66A]/5"
+                className="p-5 rounded-3xl bg-[#FFFFFF] border-2 border-[#DDE5DF] shadow-xs space-y-4"
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-md bg-[#292B36] text-[#DFC38E] text-xs font-bold border border-[#C5A66A]/30">
-                        {cargo.carrier}
-                      </span>
-                      <span className="font-mono text-xs text-[#EEE9DE]/80">{cargo.trackingCode}</span>
+                {/* Header row */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#DDE5DF] pb-3">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-2xl bg-[#648875]/15 border border-[#648875]/30 flex items-center justify-center text-[#294C3C]">
+                      <Package className="w-5 h-5" />
                     </div>
-                    <p className="text-xs text-[#EEE9DE]/60 mt-1">
-                      Kayıt: {cargo.receivedAt} · {cargo.registeredBy}
-                    </p>
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm text-[#294C3C]">{cargo.carrier}</span>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#294C3C] text-white">
+                          {cargo.pieceCount} Adet
+                        </span>
+                      </div>
+                      <p className="text-xs text-[#648875] font-semibold">
+                        Kayıt No: {cargo.id} · Giriş: {cargo.receivedAt}
+                      </p>
+                    </div>
                   </div>
 
-                  <div className="flex flex-col items-end gap-1">
-                    {cargo.approvalType === 'kodlu_onay' || cargo.status === 'kodlu_onay' ? (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 flex items-center gap-1">
-                        <ShieldCheck className="w-3 h-3 text-emerald-400" />
-                        <span>KODLU ONAY</span>
+                  {/* Delivery Status */}
+                  <div>
+                    {cargo.deliveryStatus === 'guvenlikte' ? (
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 flex items-center gap-1.5">
+                        <Clock className="w-3.5 h-3.5 text-amber-600 animate-spin" />
+                        <span>Nizamiyede Güvende</span>
                       </span>
                     ) : (
-                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-950/60 text-amber-300 border border-amber-500/40 flex items-center gap-1">
-                        <ShieldAlert className="w-3 h-3 text-amber-400" />
-                        <span>KODSUZ ONAY</span>
-                      </span>
-                    )}
-
-                    {cargo.status === 'fiziksel_teslim_alindi' && (
-                      <span className="text-[10px] text-emerald-300 font-semibold">
-                        Güvenlik Dolabına Alındı
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-900 border border-emerald-300 flex items-center gap-1.5">
+                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Fiziksel Teslim Edildi ({cargo.deliveredAt})</span>
                       </span>
                     )}
                   </div>
                 </div>
 
-                {cargo.notes && (
-                  <p className="text-xs text-[#EEE9DE]/70 bg-[#111318] p-2.5 rounded-xl border border-[#292B36]">
-                    "{cargo.notes}"
-                  </p>
+                {/* Soru ve Tercih Alanı */}
+                {!cargo.residentPreference ? (
+                  <div className="p-4 rounded-2xl bg-[#F7F8F5] border-2 border-[#648875]/40 space-y-3">
+                    <div className="text-center">
+                      <p className="text-xs font-extrabold text-[#294C3C] uppercase tracking-wide">
+                        KARGONUZ EVE Mİ GELSİN, GÜVENLİKTE EMANET Mİ KALSIN?
+                      </p>
+                      <p className="text-[11px] text-[#26342C]/70 mt-0.5">
+                        Lütfen nizamiyenin teslimat sürecini yönetmesi için seçiminizi yapınız
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+                      <button
+                        onClick={() => handleSelectPreference(cargo.id, 'eve_gonderilsin')}
+                        className="p-3 rounded-xl bg-white hover:bg-[#294C3C] hover:text-white border border-[#DDE5DF] font-bold text-xs text-[#294C3C] transition-all flex items-center justify-center gap-2 group shadow-xs touch-target"
+                      >
+                        <Home className="w-4 h-4 text-[#648875] group-hover:text-white" />
+                        <span>Eve Gönderilsin</span>
+                      </button>
+
+                      <button
+                        onClick={() => handleSelectPreference(cargo.id, 'emanet_kalsin')}
+                        className="p-3 rounded-xl bg-white hover:bg-[#294C3C] hover:text-white border border-[#DDE5DF] font-bold text-xs text-[#294C3C] transition-all flex items-center justify-center gap-2 group shadow-xs touch-target"
+                      >
+                        <Shield className="w-4 h-4 text-[#648875] group-hover:text-white" />
+                        <span>Güvenlikte Emanet Kalsın</span>
+                      </button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="p-3.5 rounded-2xl bg-[#F7F8F5] border border-[#DDE5DF] flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-[#26342C]/70">Bildirdiğiniz Tercih:</span>
+                      <span
+                        className={`px-3 py-1 rounded-xl font-bold border ${
+                          cargo.residentPreference === 'eve_gonderilsin'
+                            ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                            : 'bg-blue-50 text-blue-900 border-blue-300'
+                        }`}
+                      >
+                        {cargo.residentPreference === 'eve_gonderilsin'
+                          ? 'Eve Gönderilsin (Daireye Çıkarılacak)'
+                          : 'Güvenlikte Emanet Kalsın (Nizamiyeden Alınacak)'}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {cargo.smsCode && (
+                        <span className="text-[11px] font-mono font-bold px-2 py-0.5 rounded-md bg-white border border-[#DDE5DF] text-[#294C3C]">
+                          Kod: {cargo.smsCode}
+                        </span>
+                      )}
+                      {cargo.answeredAt && (
+                        <span className="text-[11px] text-[#26342C]/60">
+                          {cargo.answeredAt} tarihinde iletildi
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 )}
 
-                <div className="pt-2 border-t border-[#292B36] flex items-center justify-between">
-                  <span className="text-[11px] text-[#EEE9DE]/60">
-                    {residentUser.block} Blok D:{residentUser.apartment} adınıza kayıtlı
+                {/* Additional Info */}
+                <div className="flex items-center justify-between text-[11px] text-[#26342C]/60 pt-1">
+                  <span>Kabul Eden: {cargo.securityOfficerName || 'Nizamiye Güvenlik'}</span>
+                  <span>
+                    Durum:{' '}
+                    <strong className="text-[#294C3C]">
+                      {cargo.deliveryStatus === 'teslim_edildi'
+                        ? 'Teslim Tamamlandı'
+                        : cargo.residentPreference
+                        ? 'Güvenlik Yönlendiriyor'
+                        : 'Cevap Bekleniyor'}
+                    </strong>
                   </span>
-                  <button
-                    onClick={() => deliverCargoToResident(cargo.id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#292B36] hover:bg-emerald-600 text-emerald-400 hover:text-white text-xs font-semibold border border-emerald-500/30 transition-all touch-target"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Elden Teslim Aldım</span>
-                  </button>
                 </div>
               </div>
             ))}
@@ -356,135 +204,62 @@ export const CargoTab: React.FC = () => {
         )}
       </div>
 
-      {/* 2. EVE GÖNDERİLECEKLER (KURYE İLE DAĞITIMDA) */}
-      {outForDelivery.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Truck className="w-4 h-4 text-blue-400" />
-            <h3 className="text-xs font-bold text-blue-300 uppercase tracking-wider">
-              Eve Gönderilecekler / Kurye Dağıtımında ({outForDelivery.length})
-            </h3>
-          </div>
-
-          <div className="space-y-2.5">
-            {outForDelivery.map((cargo) => (
-              <div
-                key={cargo.id}
-                className="p-4 rounded-2xl bg-[#1B1D25] border-2 border-blue-500/30 space-y-2"
+      {/* SMS Modal */}
+      {activeCargoIdForSms && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in zoom-in-95">
+          <div className="bg-[#FFFFFF] border-2 border-[#294C3C] w-full max-w-sm rounded-3xl p-6 shadow-2xl space-y-4 text-[#26342C]">
+            <div className="flex items-center justify-between border-b border-[#DDE5DF] pb-2.5">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-[#648875]/15 text-[#294C3C] flex items-center justify-center">
+                  <Key className="w-4 h-4" />
+                </div>
+                <h4 className="text-sm font-bold text-[#294C3C]">Güvenlikte Emanet Kodu</h4>
+              </div>
+              <button
+                onClick={() => setActiveCargoIdForSms(null)}
+                className="text-[#26342C]/50 hover:text-[#26342C] p-1 rounded-lg"
               >
-                <div className="flex items-start justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded bg-[#292B36] text-[#DFC38E] text-xs font-bold">
-                        {cargo.carrier}
-                      </span>
-                      <span className="font-mono text-xs text-[#EEE9DE]/80">{cargo.trackingCode}</span>
-                    </div>
-                    <p className="text-xs text-[#EEE9DE]/60 mt-1">
-                      Kurye daire kapınıza doğru yönlendirildi ({cargo.receivedAt})
-                    </p>
-                  </div>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-950/60 text-blue-300 border border-blue-500/30">
-                    Eve Gönderiliyor
-                  </span>
-                </div>
-
-                <div className="pt-2 border-t border-[#292B36] flex justify-end">
-                  <button
-                    onClick={() => deliverCargoToResident(cargo.id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#292B36] hover:bg-emerald-600 text-emerald-400 hover:text-white text-xs font-semibold border border-emerald-500/30 transition-all touch-target"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                    <span>Kapıda Teslim Aldım</span>
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* 3. GEÇMİŞ TESLİM ALINANLAR */}
-      {completed.length > 0 && (
-        <div className="space-y-3 pt-2">
-          <div className="flex items-center gap-2">
-            <Inbox className="w-4 h-4 text-[#EEE9DE]/50" />
-            <h3 className="text-xs font-bold text-[#EEE9DE]/60 uppercase tracking-wider">
-              Geçmiş Teslim Alınan Kargolar ({completed.length})
-            </h3>
-          </div>
-
-          <div className="space-y-2">
-            {completed.map((cargo) => (
-              <div
-                key={cargo.id}
-                className="p-3.5 rounded-xl bg-[#111318] border border-[#292B36] flex items-center justify-between text-xs"
-              >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="font-semibold text-[#EEE9DE]">{cargo.carrier}</span>
-                    <span className="text-[#EEE9DE]/50 font-mono text-[11px]">{cargo.trackingCode}</span>
-                  </div>
-                  <p className="text-[11px] text-[#EEE9DE]/50 mt-0.5">
-                    Teslim: {cargo.deliveredAt || 'Tamamlandı'}
-                  </p>
-                </div>
-                <span className="text-[11px] font-medium text-emerald-400 flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
-                  Teslim Edildi
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* SMS MODAL IF TRIGGERED DIRECTLY FROM TAB */}
-      {smsModalCargo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in">
-          <div className="w-full max-w-sm bg-[#1B1D25] border-2 border-[#C5A66A] rounded-3xl p-6 space-y-4 shadow-2xl">
-            <div className="text-center space-y-1">
-              <div className="w-12 h-12 rounded-2xl bg-[#292B36] text-[#C5A66A] flex items-center justify-center mx-auto border border-[#C5A66A]/30">
-                <KeyRound className="w-6 h-6" />
-              </div>
-              <h3 className="text-base font-luxury font-bold text-[#EEE9DE]">KARGO EMANET ONAYI</h3>
-              <p className="text-xs text-[#EEE9DE]/70">SMS ile gönderilen dört haneli kodu giriniz.</p>
+                <X className="w-4 h-4" />
+              </button>
             </div>
 
-            <form onSubmit={handleSmsSubmit} className="space-y-4">
-              <div className="flex justify-center">
-                <input
-                  type="text"
-                  maxLength={4}
-                  inputMode="numeric"
-                  placeholder="••••"
-                  value={smsInput}
-                  onChange={(e) => setSmsInput(e.target.value.replace(/\D/g, '').slice(0, 4))}
-                  className="w-40 py-2.5 text-center font-mono text-2xl font-bold tracking-[0.5em] rounded-2xl bg-[#111318] border-2 border-[#C5A66A]/50 text-[#DFC38E] focus:outline-none"
-                  autoFocus
-                />
-              </div>
+            <div>
+              <label className="block text-xs font-bold text-[#294C3C] mb-1">
+                4 Haneli SMS Teslimat Kodu (İsteğe Bağlı)
+              </label>
+              <input
+                type="text"
+                maxLength={6}
+                placeholder="Örn: 5194"
+                value={smsCode}
+                onChange={(e) => setSmsCode(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-[#F7F8F5] border border-[#DDE5DF] focus:border-[#648875] text-center text-lg font-mono font-bold tracking-widest text-[#294C3C]"
+              />
+            </div>
 
-              <p className="text-[11px] text-center text-[#EEE9DE]/70 leading-relaxed font-medium">
-                "SMS kodunuz yoksa alanı boş bırakarak Devam Et butonuna basınız."
-              </p>
+            {/* EXACT REQUIRED TEXT */}
+            <p className="text-xs text-[#26342C]/75 bg-[#F7F8F5] p-3 rounded-xl border border-[#DDE5DF] leading-relaxed">
+              SMS kodunuz yoksa alanı boş bırakarak Devam Et butonuna basınız.
+            </p>
 
-              <div className="flex items-center gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setSmsModalCargo(null)}
-                  className="flex-1 py-2.5 rounded-xl bg-[#292B36] text-xs font-semibold text-[#EEE9DE]/70 hover:text-white"
-                >
-                  Vazgeç
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2.5 rounded-xl bg-gradient-to-r from-[#C5A66A] to-[#DFC38E] text-[#111318] font-bold text-xs uppercase tracking-wider"
-                >
-                  DEVAM ET
-                </button>
-              </div>
-            </form>
+            <div className="flex gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => setActiveCargoIdForSms(null)}
+                className="py-3 px-4 rounded-xl border border-[#DDE5DF] text-xs font-bold text-[#26342C]/70 hover:bg-[#F7F8F5] transition-colors"
+              >
+                Geri
+              </button>
+
+              <button
+                type="button"
+                onClick={handleConfirmSms}
+                className="flex-1 py-3 px-4 rounded-xl bg-[#294C3C] hover:bg-[#648875] text-white font-bold text-xs uppercase tracking-wider transition-colors shadow-md flex items-center justify-center gap-1.5 touch-target"
+              >
+                <CheckCircle2 className="w-4 h-4" />
+                <span>Devam Et</span>
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -1,0 +1,255 @@
+{
+  "entities": {
+    "Site": {
+      "title": "Site",
+      "description": "Rezidans veya site ana kaydı ve blok tanımları",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "city": { "type": "string" },
+        "district": { "type": "string" },
+        "address": { "type": "string" },
+        "registrationCode": { "type": "string", "description": "Sakinlerin kayıt olması için gereken siteye özel kod" },
+        "securityPin": { "type": "string" },
+        "adminPassword": { "type": "string" },
+        "isDemo": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "name", "city", "registrationCode"]
+    },
+    "Resident": {
+      "title": "Resident",
+      "description": "Sitede ikamet eden kayıtlı sakin bilgisi",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "siteId": { "type": "string" },
+        "fullName": { "type": "string" },
+        "block": { "type": "string" },
+        "apartment": { "type": "string" },
+        "phone": { "type": "string" },
+        "username": { "type": "string" },
+        "passwordHash": { "type": "string" },
+        "notificationPreference": { "type": "string", "enum": ["app", "none"] },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "siteId", "fullName", "block", "apartment", "phone"]
+    },
+    "Guest": {
+      "title": "Guest",
+      "description": "Nizamiye misafir giriş veya önceden sakin bildirim kaydı",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "siteId": { "type": "string" },
+        "residentId": { "type": "string" },
+        "residentName": { "type": "string" },
+        "block": { "type": "string" },
+        "apartment": { "type": "string" },
+        "guestName": { "type": "string" },
+        "guestSurname": { "type": "string" },
+        "type": { "type": "string", "enum": ["yaya", "aracli"] },
+        "plateNumber": { "type": "string" },
+        "status": { "type": "string", "enum": ["bekleniyor", "iceri_alindi", "reddedildi", "ayrildi"] },
+        "option": { "type": "number" },
+        "residentResponse": { "type": "string" },
+        "residentRespondedAt": { "type": "string" },
+        "guardAcknowledged": { "type": "boolean" },
+        "entryTime": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "siteId", "block", "apartment", "status"]
+    },
+    "Order": {
+      "title": "Order",
+      "description": "Sipariş / kurye geliş bildirimi ve sakin yanıtı",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "siteId": { "type": "string" },
+        "residentId": { "type": "string" },
+        "residentName": { "type": "string" },
+        "block": { "type": "string" },
+        "apartment": { "type": "string" },
+        "platform": { "type": "string", "enum": ["TRENDYOL", "GETIR", "MIGROS", "YEMEKSEPETI", "DIGER"] },
+        "platformName": { "type": "string" },
+        "courierName": { "type": "string" },
+        "status": { "type": "string", "enum": ["bekleniyor", "onaylandi", "guvenlige_birakildi", "kapiya_birakilsin", "reddedildi", "teslim_edildi"] },
+        "residentChoice": { "type": "string" },
+        "residentRespondedAt": { "type": "string" },
+        "guardAcknowledged": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "siteId", "block", "apartment", "platform", "status"]
+    },
+    "Cargo": {
+      "title": "Cargo",
+      "description": "Kargo teslim alma ve sakin teslimat kayıtları",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "siteId": { "type": "string" },
+        "residentId": { "type": "string" },
+        "residentName": { "type": "string" },
+        "block": { "type": "string" },
+        "apartment": { "type": "string" },
+        "cargoCompany": { "type": "string" },
+        "trackingNumber": { "type": "string" },
+        "pickupCode": { "type": "string" },
+        "status": { "type": "string", "enum": ["guvenlikte", "teslim_edildi"] },
+        "receivedAt": { "type": "string" },
+        "deliveredAt": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "siteId", "block", "apartment", "cargoCompany", "pickupCode", "status"]
+    },
+    "Suggestion": {
+      "title": "Suggestion",
+      "description": "Sakin istek, öneri ve geri bildirim kayıtları",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "siteId": { "type": "string" },
+        "residentName": { "type": "string" },
+        "block": { "type": "string" },
+        "apartment": { "type": "string" },
+        "subject": { "type": "string" },
+        "message": { "type": "string" },
+        "type": { "type": "string", "enum": ["oneri", "sikayet", "tesekkur"] },
+        "status": { "type": "string", "enum": ["yeni", "inceleniyor", "cozuldu"] },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["id", "siteId", "subject", "message", "status"]
+    },
+    "Due": {
+      "title": "Due",
+      "description": "Daire aidat, yakıt ve ek bütçe borç/tahakkuk kaydı",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "siteId": { "type": "string" },
+        "block": { "type": "string" },
+        "apartment": { "type": "string" },
+        "residentName": { "type": "string" },
+        "period": { "type": "string" },
+        "amount": { "type": "number" },
+        "paidAmount": { "type": "number" },
+        "remainingAmount": { "type": "number" },
+        "dueDate": { "type": "string" },
+        "status": { "type": "string", "enum": ["odendi", "kismi_odendi", "odenmedi"] }
+      },
+      "required": ["id", "siteId", "block", "apartment", "amount", "status"]
+    },
+    "Staff": {
+      "title": "Staff",
+      "description": "Güvenlik, temizlik, teknik ve yönetim personel kaydı",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "siteId": { "type": "string" },
+        "name": { "type": "string" },
+        "surname": { "type": "string" },
+        "category": { "type": "string", "enum": ["guvenlik", "temizlik", "teknik", "yonetim", "bahce", "diger"] },
+        "phone": { "type": "string" },
+        "email": { "type": "string" },
+        "pinHash": { "type": "string" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["id", "siteId", "name", "category", "isActive"]
+    },
+    "TimeRecord": {
+      "title": "TimeRecord",
+      "description": "Personel giriş-çıkış puantaj ve mesai kaydı",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "siteId": { "type": "string" },
+        "staffId": { "type": "string" },
+        "staffName": { "type": "string" },
+        "date": { "type": "string" },
+        "clockIn": { "type": "string" },
+        "clockOut": { "type": "string" },
+        "status": { "type": "string", "enum": ["working", "completed", "admin_adjusted"] }
+      },
+      "required": ["id", "siteId", "staffId", "date", "clockIn", "status"]
+    },
+    "PayrollRecord": {
+      "title": "PayrollRecord",
+      "description": "Personel maaş ve bordro hesaplama kaydı",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "siteId": { "type": "string" },
+        "staffId": { "type": "string" },
+        "staffName": { "type": "string" },
+        "month": { "type": "string" },
+        "netPayable": { "type": "number" },
+        "isApprovedByAdmin": { "type": "boolean" }
+      },
+      "required": ["id", "siteId", "staffId", "month", "netPayable"]
+    },
+    "InviteCode": {
+      "title": "InviteCode",
+      "description": "Tek kullanımlık, süreli daire kayıt davet kodu",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "siteId": { "type": "string" },
+        "code": { "type": "string" },
+        "block": { "type": "string" },
+        "apartment": { "type": "string" },
+        "used": { "type": "boolean" },
+        "expiresAt": { "type": "string" }
+      },
+      "required": ["id", "siteId", "code", "block", "apartment", "used"]
+    }
+  },
+  "firestore": {
+    "/sites/{siteId}": {
+      "schema": "Site",
+      "description": "Site ve rezidans ana bilgileri"
+    },
+    "/sites/{siteId}/residents/{residentId}": {
+      "schema": "Resident",
+      "description": "Site sakinleri listesi"
+    },
+    "/sites/{siteId}/guests/{guestId}": {
+      "schema": "Guest",
+      "description": "Siteye gelen misafir kayıtları"
+    },
+    "/sites/{siteId}/orders/{orderId}": {
+      "schema": "Order",
+      "description": "Kurye ve sipariş kayıtları"
+    },
+    "/sites/{siteId}/cargos/{cargoId}": {
+      "schema": "Cargo",
+      "description": "Kargo paket takip kayıtları"
+    },
+    "/sites/{siteId}/suggestions/{suggestionId}": {
+      "schema": "Suggestion",
+      "description": "Sakin istek ve şikayet kayıtları"
+    },
+    "/sites/{siteId}/dues/{dueId}": {
+      "schema": "Due",
+      "description": "Daire aidat ve borç kayıtları"
+    },
+    "/sites/{siteId}/staff/{staffId}": {
+      "schema": "Staff",
+      "description": "Personel kadrosu kayıtları"
+    },
+    "/sites/{siteId}/timeRecords/{recordId}": {
+      "schema": "TimeRecord",
+      "description": "Puantaj mesai kayıtları"
+    },
+    "/sites/{siteId}/payrollRecords/{recordId}": {
+      "schema": "PayrollRecord",
+      "description": "Bordro ve maaş kayıtları"
+    },
+    "/sites/{siteId}/inviteCodes/{codeId}": {
+      "schema": "InviteCode",
+      "description": "Tek kullanımlık daire davet kodları"
+    }
+  }
+}

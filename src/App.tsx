@@ -11,10 +11,12 @@ import { AdminDashboard } from './components/admin/AdminDashboard';
 import { SecurityDashboard } from './components/security/SecurityDashboard';
 import { AdScreenModal } from './components/AdScreenModal';
 import { GoogleDriveSetupModal } from './components/GoogleDriveSetupModal';
-import { Smartphone, Monitor } from 'lucide-react';
+import { NewSiteModal } from './components/NewSiteModal';
+import { GlobalFloatingBanner } from './components/common/GlobalFloatingBanner';
+import { Smartphone, Monitor, ShieldCheck, Users, Building2, Home } from 'lucide-react';
 
 const MainView: React.FC = () => {
-  const { currentRole, isMobilePreview, setIsMobilePreview } = useApp();
+  const { currentRole, setCurrentRole, isMobilePreview, setIsMobilePreview } = useApp();
 
   const renderContent = () => {
     switch (currentRole) {
@@ -29,46 +31,46 @@ const MainView: React.FC = () => {
     }
   };
 
-  if (isMobilePreview) {
-    return (
-      <div className="min-h-screen bg-[#0B0C0E] py-6 px-4 flex flex-col items-center justify-center">
-        {/* Frame Toggle Floating Indicator */}
-        <div className="mb-4 flex items-center gap-3 bg-[#1B1D25] border border-[#C5A66A]/30 px-4 py-2 rounded-full text-xs text-[#DFC38E] shadow-xl">
-          <Smartphone className="w-4 h-4 text-[#C5A66A]" />
-          <span>Mobil Önizleme Çerçevesi (390×844)</span>
-          <button
-            onClick={() => setIsMobilePreview(false)}
-            className="ml-2 px-2.5 py-1 rounded-md bg-[#292B36] hover:bg-[#C5A66A] hover:text-[#111318] text-[#EEE9DE] text-[11px] font-semibold transition-all"
-          >
-            Tam Ekrana Dön
-          </button>
-        </div>
-
-        {/* Smartphone Shell */}
-        <div className="relative w-full max-w-[400px] h-[844px] bg-[#111318] border-[10px] border-[#292B36] rounded-[48px] overflow-hidden shadow-2xl shadow-black/80 flex flex-col ring-1 ring-[#C5A66A]/40">
-          {/* Dynamic Island / Speaker Notch */}
-          <div className="w-28 h-4 bg-black rounded-b-2xl mx-auto absolute top-0 left-0 right-0 z-50 flex items-center justify-center">
-            <span className="w-2.5 h-2.5 rounded-full bg-slate-900 border border-slate-700/60" />
-          </div>
-
-          {/* Screen Content */}
-          <div className="w-full h-full overflow-y-auto overflow-x-hidden pt-3">
-            {renderContent()}
-          </div>
-        </div>
-
-        <AdScreenModal />
-        <GoogleDriveSetupModal />
-      </div>
-    );
-  }
-
   return (
-    <>
-      {renderContent()}
-      <AdScreenModal />
+    <div className="relative min-h-screen bg-[#F7F8F5] text-[#26342C]">
+      {/* Mobile Frame Toggle Floating Button */}
+      <div className="fixed bottom-4 right-4 z-50">
+        <button
+          onClick={() => setIsMobilePreview(!isMobilePreview)}
+          title="Mobil Çerçeve Değiştir"
+          className="p-2.5 rounded-2xl bg-white border border-[#DDE5DF] hover:border-[#648875] text-[#294C3C] text-xs font-bold transition-all flex items-center gap-2 shadow-lg backdrop-blur-md"
+        >
+          {isMobilePreview ? <Monitor className="w-4 h-4 text-[#648875]" /> : <Smartphone className="w-4 h-4 text-[#648875]" />}
+          <span className="hidden md:inline">{isMobilePreview ? 'Masaüstü Görünüm' : 'Mobil Önizleme'}</span>
+        </button>
+      </div>
+
+      {/* Screen Render */}
+      {isMobilePreview ? (
+        <div className="min-h-screen bg-[#F0F2EE] py-6 px-4 flex flex-col items-center justify-center">
+          <div className="relative w-full max-w-[400px] h-[850px] bg-[#FFFFFF] rounded-[48px] border-[10px] border-[#294C3C] shadow-2xl overflow-hidden flex flex-col">
+            {/* Phone Notch */}
+            <div className="w-32 h-5 bg-[#294C3C] rounded-b-2xl mx-auto absolute top-0 left-1/2 -translate-x-1/2 z-50 flex items-center justify-center">
+              <div className="w-12 h-1.5 bg-[#A8BCAF]/40 rounded-full" />
+            </div>
+
+            <div className="flex-1 overflow-y-auto pt-6 pb-20 no-scrollbar">
+              {renderContent()}
+            </div>
+          </div>
+        </div>
+      ) : (
+        renderContent()
+      )}
+
+      {/* Global Floating Banner for Alarms & Chimes */}
+      <GlobalFloatingBanner />
+
+      {/* Global Modals */}
+      <NewSiteModal />
       <GoogleDriveSetupModal />
-    </>
+      <AdScreenModal />
+    </div>
   );
 };
 

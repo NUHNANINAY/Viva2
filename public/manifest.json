@@ -1,0 +1,19 @@
+{
+  "name": "VİVA SİTE — Rezidans ve Site Yönetimi",
+  "short_name": "VİVA SİTE",
+  "description": "Lüks rezidans ve konut siteleri için mobil öncelikli yönetim, güvenlik, kargo ve misafir kabul platformu",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#F7F8F5",
+  "theme_color": "#294C3C",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

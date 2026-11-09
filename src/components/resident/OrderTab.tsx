@@ -3,373 +3,217 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useApp } from '../../context/AppContext';
 import {
   ShoppingBag,
-  DoorOpen,
-  Coffee,
-  PhoneCall,
-  MessageSquare,
-  CheckCircle2,
   Clock,
-  Plus,
-  Send,
   Home,
+  Coffee,
+  DoorOpen,
+  CheckCircle2,
+  Sparkles,
+  Info,
 } from 'lucide-react';
-import { DeliveryLocation, NotificationPreference } from '../../types';
+import { DeliveryPreference } from '../../types';
 
 export const OrderTab: React.FC = () => {
-  const { orderList, addOrder, residentUser } = useApp();
+  const {
+    orderList,
+    residentUser,
+    respondToOrderDeliveryPreference,
+    setCurrentRole,
+  } = useApp();
 
-  const [company, setCompany] = useState('Yemeksepeti');
-  const [customCompany, setCustomCompany] = useState('');
-  const [deliveryLocation, setDeliveryLocation] = useState<DeliveryLocation>('direct_home');
-  const [notificationPreference, setNotificationPreference] = useState<NotificationPreference>('call_on_arrival');
-  const [courierNote, setCourierNote] = useState('');
-  const [showSuccessToast, setShowSuccessToast] = useState(false);
-
-  // Filter orders for this resident
+  // Filter orders for current resident or show all if in testing
   const myOrders = orderList.filter(
-    (o) => o.residentBlock === residentUser.block && o.residentApartment === residentUser.apartment
+    (o) => o.block === residentUser.block && o.apartment === residentUser.apartment
   );
 
-  const quickCompanies = [
-    'Yemeksepeti',
-    'Getir',
-    'Trendyol Yemek',
-    'Migros Hemen',
-    'Su Servisi (Damacana)',
-    'Diğer',
-  ];
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    const finalCompany = company === 'Diğer' ? customCompany.trim() || 'Özel Sipariş' : company;
-
-    addOrder({
-      company: finalCompany,
-      deliveryLocation,
-      notificationPreference,
-      courierNote: courierNote.trim() || undefined,
-    });
-
-    setCourierNote('');
-    setShowSuccessToast(true);
-    setTimeout(() => setShowSuccessToast(false), 3000);
+  const getPreferenceLabel = (pref?: DeliveryPreference) => {
+    switch (pref) {
+      case 'evdeyim':
+        return { label: 'EVDEYİM (Daireme Getirsinler)', icon: Home, color: 'text-emerald-700 bg-emerald-50 border-emerald-200' };
+      case 'cafedeyim':
+        return { label: 'CAFEDEYİM (Lounge / Kafeye Bıraksınlar)', icon: Coffee, color: 'text-amber-800 bg-amber-50 border-amber-300' };
+      case 'kapiya_biraksinlar':
+        return { label: 'KAPIYA BIRAKSINLAR (Kapı Önü)', icon: DoorOpen, color: 'text-blue-800 bg-blue-50 border-blue-200' };
+      default:
+        return { label: 'Tercih Belirtilmedi', icon: Clock, color: 'text-neutral-600 bg-neutral-100 border-neutral-200' };
+    }
   };
 
   return (
-    <div className="space-y-6 pb-20">
-      {/* Tab Header Banner */}
-      <div className="p-4 rounded-2xl bg-[#1B1D25] border border-[#292B36] flex items-center justify-between">
+    <div className="space-y-6 pb-8">
+      {/* Welcome Banner */}
+      <div className="p-4 sm:p-5 rounded-3xl bg-[#F7F8F5] border border-[#DDE5DF] flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-[#292B36] text-[#C5A66A] flex items-center justify-center border border-[#C5A66A]/20">
+          <div className="w-10 h-10 rounded-2xl bg-[#648875]/15 text-[#294C3C] flex items-center justify-center border border-[#648875]/30">
             <ShoppingBag className="w-5 h-5" />
           </div>
           <div>
-            <h2 className="text-base font-bold text-[#EEE9DE]">Sipariş & Kurye Talimatı</h2>
-            <p className="text-xs text-[#EEE9DE]/60">Nizamiyeye teslimat yeri ve bildirim tercihi iletin</p>
+            <h2 className="text-base font-luxury font-bold text-[#294C3C]">
+              Sipariş & Kurye Karşılama
+            </h2>
+            <p className="text-xs text-[#26342C]/65">
+              Nizamiyeye gelen yemek ve kurye siparişleriniz anında burada görünür
+            </p>
           </div>
         </div>
-        <span className="text-xs text-[#DFC38E] font-medium hidden sm:inline">
-          {residentUser.block} Blok D:{residentUser.apartment}
-        </span>
-      </div>
-
-      {showSuccessToast && (
-        <div className="p-3.5 rounded-xl bg-emerald-950/60 border border-emerald-500/50 text-emerald-300 text-xs flex items-center gap-2 animate-in fade-in">
-          <CheckCircle2 className="w-4 h-4 shrink-0" />
-          <span>Sipariş talimatınız kaydedildi. Kurye geldiğinde nizamiyedeki güvenlik görevlisi seçtiğiniz şekilde yönlendirecektir.</span>
+        <div className="flex items-center gap-2">
+          <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#648875]/15 text-[#294C3C] border border-[#648875]/30">
+            {residentUser.block} Blok Daire {residentUser.apartment}
+          </span>
         </div>
-      )}
-
-      {/* Order Instruction Form */}
-      <div className="p-5 rounded-2xl bg-[#1B1D25] border border-[#C5A66A]/25 space-y-5">
-        <h3 className="text-sm font-luxury font-bold text-[#DFC38E] uppercase tracking-wider flex items-center gap-2">
-          <Plus className="w-4 h-4 text-[#C5A66A]" />
-          <span>Yeni Sipariş & Kurye Bildirimi</span>
-        </h3>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Company Picker */}
-          <div>
-            <label className="block text-xs font-semibold text-[#EEE9DE]/80 mb-2">
-              Sipariş Firması / Hizmet
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {quickCompanies.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setCompany(c)}
-                  className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-all ${
-                    company === c
-                      ? 'bg-[#C5A66A] text-[#111318] border-[#C5A66A] font-bold shadow-sm'
-                      : 'bg-[#111318] text-[#EEE9DE]/70 border-[#292B36] hover:border-[#C5A66A]/40'
-                  }`}
-                >
-                  {c}
-                </button>
-              ))}
-            </div>
-
-            {company === 'Diğer' && (
-              <input
-                type="text"
-                required
-                placeholder="Firma veya kurye adını yazın..."
-                value={customCompany}
-                onChange={(e) => setCustomCompany(e.target.value)}
-                className="w-full mt-2.5 px-4 py-2 rounded-xl bg-[#111318] border border-[#292B36] focus:border-[#C5A66A] focus:outline-none text-xs text-[#EEE9DE]"
-              />
-            )}
-          </div>
-
-          {/* 1. Teslimat Yeri Tercihi */}
-          <div>
-            <label className="block text-xs font-semibold text-[#DFC38E] uppercase tracking-wider mb-2">
-              1. Teslimat Yeri Tercihi *
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              <label
-                onClick={() => setDeliveryLocation('direct_home')}
-                className={`p-3.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                  deliveryLocation === 'direct_home'
-                    ? 'bg-[#292B36] border-[#C5A66A] text-[#EEE9DE] shadow-sm'
-                    : 'bg-[#111318] border-[#292B36] text-[#EEE9DE]/70 hover:border-[#C5A66A]/40'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <Home className="w-4 h-4 text-[#C5A66A]" />
-                  <input
-                    type="radio"
-                    name="deliveryLoc"
-                    checked={deliveryLocation === 'direct_home'}
-                    onChange={() => setDeliveryLocation('direct_home')}
-                    className="accent-[#C5A66A]"
-                  />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-[#EEE9DE]">Doğrudan Eve</p>
-                  <p className="text-[11px] text-[#EEE9DE]/60 mt-0.5">Kurye daireye çıksın, zili çalsın</p>
-                </div>
-              </label>
-
-              <label
-                onClick={() => setDeliveryLocation('leave_at_door')}
-                className={`p-3.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                  deliveryLocation === 'leave_at_door'
-                    ? 'bg-[#292B36] border-[#C5A66A] text-[#EEE9DE] shadow-sm'
-                    : 'bg-[#111318] border-[#292B36] text-[#EEE9DE]/70 hover:border-[#C5A66A]/40'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <DoorOpen className="w-4 h-4 text-[#C5A66A]" />
-                  <input
-                    type="radio"
-                    name="deliveryLoc"
-                    checked={deliveryLocation === 'leave_at_door'}
-                    onChange={() => setDeliveryLocation('leave_at_door')}
-                    className="accent-[#C5A66A]"
-                  />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-[#EEE9DE]">Kapıya Bırak</p>
-                  <p className="text-[11px] text-[#EEE9DE]/60 mt-0.5">Temassız, kapı önüne bıraksın</p>
-                </div>
-              </label>
-
-              <label
-                onClick={() => setDeliveryLocation('redirect_to_cafe')}
-                className={`p-3.5 rounded-xl border cursor-pointer transition-all flex flex-col justify-between ${
-                  deliveryLocation === 'redirect_to_cafe'
-                    ? 'bg-[#292B36] border-[#C5A66A] text-[#EEE9DE] shadow-sm'
-                    : 'bg-[#111318] border-[#292B36] text-[#EEE9DE]/70 hover:border-[#C5A66A]/40'
-                }`}
-              >
-                <div className="flex items-center justify-between mb-2">
-                  <Coffee className="w-4 h-4 text-[#C5A66A]" />
-                  <input
-                    type="radio"
-                    name="deliveryLoc"
-                    checked={deliveryLocation === 'redirect_to_cafe'}
-                    onChange={() => setDeliveryLocation('redirect_to_cafe')}
-                    className="accent-[#C5A66A]"
-                  />
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-[#EEE9DE]">Cafe'ye Yönlendir</p>
-                  <p className="text-[11px] text-[#EEE9DE]/60 mt-0.5">Lobi / Cafe barına teslim edilsin</p>
-                </div>
-              </label>
-            </div>
-          </div>
-
-          {/* 2. Bildirim Tercihi */}
-          <div>
-            <label className="block text-xs font-semibold text-[#DFC38E] uppercase tracking-wider mb-2">
-              2. Bildirim Tercihi *
-            </label>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-              <label
-                onClick={() => setNotificationPreference('call_on_arrival')}
-                className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-2.5 ${
-                  notificationPreference === 'call_on_arrival'
-                    ? 'bg-[#292B36] border-[#C5A66A] text-[#EEE9DE]'
-                    : 'bg-[#111318] border-[#292B36] text-[#EEE9DE]/70 hover:border-[#C5A66A]/40'
-                }`}
-              >
-                <PhoneCall className="w-4 h-4 text-[#C5A66A] shrink-0" />
-                <div className="flex-1">
-                  <p className="text-xs font-semibold text-[#EEE9DE]">Geldiğinde Aranmak İstiyorum</p>
-                  <p className="text-[10px] text-[#EEE9DE]/60">Nizamiye veya kurye arasın</p>
-                </div>
-                <input
-                  type="radio"
-                  name="notifPref"
-                  checked={notificationPreference === 'call_on_arrival'}
-                  onChange={() => setNotificationPreference('call_on_arrival')}
-                  className="accent-[#C5A66A]"
-                />
-              </label>
-
-              <label
-                onClick={() => setNotificationPreference('whatsapp_message')}
-                className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-2.5 ${
-                  notificationPreference === 'whatsapp_message'
-                    ? 'bg-[#292B36] border-[#C5A66A] text-[#EEE9DE]'
-                    : 'bg-[#111318] border-[#292B36] text-[#EEE9DE]/70 hover:border-[#C5A66A]/40'
-                }`}
-              >
-                <MessageSquare className="w-4 h-4 text-[#C5A66A] shrink-0" />
-                <div className="flex-1">
-                  <p className="text-xs font-semibold text-[#EEE9DE]">WhatsApp Mesajı İstiyorum</p>
-                  <p className="text-[10px] text-[#EEE9DE]/60">Sessiz bildirim mesajı</p>
-                </div>
-                <input
-                  type="radio"
-                  name="notifPref"
-                  checked={notificationPreference === 'whatsapp_message'}
-                  onChange={() => setNotificationPreference('whatsapp_message')}
-                  className="accent-[#C5A66A]"
-                />
-              </label>
-
-              <label
-                onClick={() => setNotificationPreference('both')}
-                className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center gap-2.5 ${
-                  notificationPreference === 'both'
-                    ? 'bg-[#292B36] border-[#C5A66A] text-[#EEE9DE]'
-                    : 'bg-[#111318] border-[#292B36] text-[#EEE9DE]/70 hover:border-[#C5A66A]/40'
-                }`}
-              >
-                <div className="flex items-center gap-1 text-[#C5A66A] shrink-0">
-                  <PhoneCall className="w-3.5 h-3.5" />
-                  <MessageSquare className="w-3.5 h-3.5" />
-                </div>
-                <div className="flex-1">
-                  <p className="text-xs font-semibold text-[#EEE9DE]">Arama ve WhatsApp</p>
-                  <p className="text-[10px] text-[#EEE9DE]/60">Çift yönlü bildirim</p>
-                </div>
-                <input
-                  type="radio"
-                  name="notifPref"
-                  checked={notificationPreference === 'both'}
-                  onChange={() => setNotificationPreference('both')}
-                  className="accent-[#C5A66A]"
-                />
-              </label>
-            </div>
-          </div>
-
-          {/* Courier Note */}
-          <div>
-            <label className="block text-xs font-semibold text-[#EEE9DE]/80 mb-1">
-              Kurye ve Güvenlik İçin Özel Not
-            </label>
-            <input
-              type="text"
-              placeholder="Örn: Bebek uyuyor zile basmayın, kapı önündeki paspasa bırakın."
-              value={courierNote}
-              onChange={(e) => setCourierNote(e.target.value)}
-              className="w-full px-4 py-2.5 rounded-xl bg-[#111318] border border-[#292B36] focus:border-[#C5A66A] focus:outline-none text-xs text-[#EEE9DE]"
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-[#C5A66A] to-[#DFC38E] text-[#111318] font-bold text-xs uppercase tracking-wider hover:brightness-110 active:scale-[0.99] transition-all shadow-md touch-target flex items-center justify-center gap-2"
-          >
-            <Send className="w-4 h-4 text-[#111318]" />
-            <span>Sipariş Talimatını İlet</span>
-          </button>
-        </form>
       </div>
 
-      {/* Existing Orders List */}
+      {/* Orders List / Clean Empty State */}
       <div className="space-y-3">
-        <h3 className="text-xs font-bold text-[#DFC38E] uppercase tracking-wider">
-          Sipariş Bildirimlerim ({myOrders.length})
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-xs font-bold text-[#294C3C] uppercase tracking-wider">
+            Gelen Siparişlerim ({myOrders.length})
+          </h3>
+          <span className="text-[11px] text-[#26342C]/60">
+            Otomatik güvenlik senkronizasyonu
+          </span>
+        </div>
 
+        {/* 2. SİPARİŞ EKRANINI TEMİZLE: Gerçek kayıt oluşana kadar boş durum ekranı */}
         {myOrders.length === 0 ? (
-          <div className="p-6 text-center rounded-2xl bg-[#1B1D25] border border-[#292B36] text-[#EEE9DE]/50 text-xs">
-            Kayıtlı sipariş bildiriminiz bulunmuyor.
+          <div className="p-8 sm:p-12 text-center rounded-3xl bg-[#FFFFFF] border-2 border-dashed border-[#DDE5DF] space-y-4">
+            <div className="w-14 h-14 rounded-2xl bg-[#F7F8F5] border border-[#DDE5DF] flex items-center justify-center mx-auto text-[#648875]">
+              <ShoppingBag className="w-7 h-7 text-[#648875]" />
+            </div>
+            <div className="space-y-1.5 max-w-sm mx-auto">
+              <h4 className="text-sm font-bold text-[#294C3C]">
+                Şu Anda Bekleyen Bir Siparişiniz Yok
+              </h4>
+              <p className="text-xs text-[#26342C]/65 leading-relaxed">
+                Trendyol, Getir, Migros, Yemeksepeti veya diğer firmalardan gelen kuryeler nizamiyeye ulaştığında güvenlik kaydı açar ve telefonunuza anında teslimat tercihi bildirimi düşer.
+              </p>
+            </div>
+
+            <div className="pt-2">
+              <button
+                onClick={() => setCurrentRole('security')}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#F7F8F5] hover:bg-[#648875] hover:text-white border border-[#DDE5DF] text-xs font-bold text-[#294C3C] transition-all"
+              >
+                <span>Güvenlik Ekranına Geç ve Sipariş Oluştur</span>
+              </button>
+            </div>
           </div>
         ) : (
-          <div className="space-y-2.5">
+          <div className="space-y-3">
             {myOrders.map((ord) => {
-              const deliveryLabels: Record<DeliveryLocation, string> = {
-                direct_home: 'Doğrudan Eve',
-                leave_at_door: 'Kapıya Bırak',
-                redirect_to_cafe: "Cafe'ye Yönlendir",
-              };
-
-              const prefLabels: Record<NotificationPreference, string> = {
-                call_on_arrival: 'Telefonla Arama',
-                whatsapp_message: 'WhatsApp Mesajı',
-                both: 'Arama + WhatsApp',
-              };
+              const prefInfo = getPreferenceLabel(ord.deliveryPreference);
+              const PrefIcon = prefInfo.icon;
 
               return (
                 <div
                   key={ord.id}
-                  className="p-4 rounded-2xl bg-[#1B1D25] border border-[#292B36] space-y-2"
+                  className="p-5 rounded-3xl bg-[#FFFFFF] border-2 border-[#DDE5DF] shadow-md space-y-4"
                 >
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <h4 className="text-sm font-bold text-[#EEE9DE]">{ord.company}</h4>
-                      <p className="text-xs text-[#EEE9DE]/60 mt-0.5">{ord.createdAt}</p>
+                  {/* Header Row */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#DDE5DF] pb-3">
+                    <div className="flex items-center gap-3">
+                      <span className="px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider bg-[#294C3C] text-white">
+                        {ord.company}
+                      </span>
+                      <div>
+                        <h4 className="text-sm font-bold text-[#294C3C]">
+                          Kurye Kapıda ({ord.createdAt})
+                        </h4>
+                        <p className="text-[11px] text-[#26342C]/60">
+                          {ord.courierName || 'Kurye'} tarafından getirildi
+                        </p>
+                      </div>
                     </div>
 
-                    <span
-                      className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full border ${
-                        ord.status === 'teslim_edildi'
-                          ? 'text-emerald-400 bg-emerald-950/40 border-emerald-500/30'
-                          : 'text-amber-400 bg-amber-950/40 border-amber-500/30'
-                      }`}
-                    >
-                      {ord.status === 'teslim_edildi' ? 'Teslim Edildi' : 'Kurye Bekleniyor'}
-                    </span>
+                    {/* Status Badge */}
+                    <div>
+                      {ord.status === 'bekleniyor' && (
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-900 border border-amber-300 flex items-center gap-1.5">
+                          <Clock className="w-3.5 h-3.5 text-amber-600 animate-spin" />
+                          <span>Tercihiniz Bekleniyor</span>
+                        </span>
+                      )}
+                      {ord.status === 'cevaplandi' && (
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-sky-50 text-sky-900 border border-sky-300 flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-sky-600" />
+                          <span>Güvenlik Kuryeyi Yönlendiriyor</span>
+                        </span>
+                      )}
+                      {ord.status === 'onaylandi' && (
+                        <span className="px-3 py-1 rounded-full text-xs font-bold bg-[#648875]/15 text-[#294C3C] border border-[#648875]/40 flex items-center gap-1.5">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-[#294C3C]" />
+                          <span>İşlem Onaylandı</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="pt-2 border-t border-[#292B36] flex flex-wrap items-center gap-3 text-xs text-[#EEE9DE]/70">
-                    <span className="flex items-center gap-1">
-                      <span className="text-[#C5A66A]">Teslimat:</span>
-                      <strong className="text-[#EEE9DE]">{deliveryLabels[ord.deliveryLocation]}</strong>
-                    </span>
-                    <span>·</span>
-                    <span className="flex items-center gap-1">
-                      <span className="text-[#C5A66A]">Bildirim:</span>
-                      <strong className="text-[#EEE9DE]">{prefLabels[ord.notificationPreference]}</strong>
-                    </span>
-                  </div>
+                  {/* 4. Preference Prompt if not answered yet */}
+                  {ord.status === 'bekleniyor' ? (
+                    <div className="space-y-3 bg-[#F7F8F5] p-4 rounded-2xl border border-[#648875]/30">
+                      <div className="text-center">
+                        <p className="text-xs font-extrabold text-[#294C3C] uppercase tracking-wide">
+                          SİPARİŞİNİZ GELDİ. NASIL TESLİM ALMAK İSTERSİNİZ?
+                        </p>
+                        <p className="text-[11px] text-[#26342C]/70 mt-0.5">
+                          Güvenliğin kuryeyi yönlendirebilmesi için seçiminizi yapınız
+                        </p>
+                      </div>
 
-                  {ord.courierNote && (
-                    <p className="text-[11px] italic text-[#EEE9DE]/60 pt-1">
-                      "{ord.courierNote}"
-                    </p>
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1">
+                        <button
+                          onClick={() => respondToOrderDeliveryPreference(ord.id, 'evdeyim')}
+                          className="p-3 rounded-xl bg-white hover:bg-[#294C3C] hover:text-white border border-[#DDE5DF] font-bold text-xs text-[#294C3C] transition-all flex items-center justify-center gap-2 group shadow-xs touch-target"
+                        >
+                          <Home className="w-4 h-4 text-[#648875] group-hover:text-white" />
+                          <span>EVDEYİM</span>
+                        </button>
+
+                        <button
+                          onClick={() => respondToOrderDeliveryPreference(ord.id, 'cafedeyim')}
+                          className="p-3 rounded-xl bg-white hover:bg-[#294C3C] hover:text-white border border-[#DDE5DF] font-bold text-xs text-[#294C3C] transition-all flex items-center justify-center gap-2 group shadow-xs touch-target"
+                        >
+                          <Coffee className="w-4 h-4 text-[#648875] group-hover:text-white" />
+                          <span>CAFEDEYİM</span>
+                        </button>
+
+                        <button
+                          onClick={() => respondToOrderDeliveryPreference(ord.id, 'kapiya_biraksinlar')}
+                          className="p-3 rounded-xl bg-white hover:bg-[#294C3C] hover:text-white border border-[#DDE5DF] font-bold text-xs text-[#294C3C] transition-all flex items-center justify-center gap-2 group shadow-xs touch-target"
+                        >
+                          <DoorOpen className="w-4 h-4 text-[#648875] group-hover:text-white" />
+                          <span>KAPIYA BIRAKSINLAR</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    /* Display Selected Preference */
+                    <div className="p-3.5 rounded-2xl bg-[#F7F8F5] border border-[#DDE5DF] flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                      <div className="flex items-center gap-2">
+                        <PrefIcon className="w-4 h-4 text-[#648875]" />
+                        <span className="font-semibold text-[#26342C]/80">Verdiğiniz Tercih:</span>
+                        <span className={`px-2.5 py-0.5 rounded-lg font-bold border ${prefInfo.color}`}>
+                          {prefInfo.label}
+                        </span>
+                      </div>
+
+                      {ord.answeredAt && (
+                        <span className="text-[11px] text-[#26342C]/60">
+                          {ord.answeredAt} tarihinde iletildi
+                        </span>
+                      )}
+                    </div>
+                  )}
+
+                  {ord.approvedBySecurityAt && (
+                    <div className="text-[11px] text-[#648875] font-semibold flex items-center gap-1.5 pt-1">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Güvenlik görevlisi kuryeyi tercihinize göre yönlendirdi ({ord.approvedBySecurityAt}).</span>
+                    </div>
                   )}
                 </div>
               );

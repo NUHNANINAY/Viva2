@@ -1,0 +1,803 @@
+{
+  "timestamp": "2026-11-08T14:19:38.698Z",
+  "databaseId": "ai-studio-viva-08b6f6c3-65d8-4fed-bdc3-9aef36a4fca5",
+  "projectId": "gen-lang-client-0500092417",
+  "collections": {
+    "sites": {
+      "count": 2,
+      "documents": [
+        {
+          "path": "sites/site-mw656a9j",
+          "id": "site-mw656a9j",
+          "data": {
+            "migratedAt": "2026-11-08T10:09:10.524Z",
+            "adminEmail": "yonetim@site.com",
+            "city": "Bursa",
+            "blockCount": 8,
+            "adminPhone": "+90 532 100 00 01",
+            "securityCount": 6,
+            "adminName": "Murat Yıldız",
+            "apartmentCount": 120,
+            "address": "Ahmet Yesevi mahallesi Akel sokak no 3",
+            "id": "site-mw656a9j",
+            "name": "DIKENCIK PENTA",
+            "securityPhone": "+90 5491601614",
+            "isDemo": false,
+            "securityPasswordHash": "1234",
+            "district": "Nilüfer",
+            "blocks": [
+              {
+                "apartmentCount": 15,
+                "block": "A"
+              },
+              {
+                "block": "B",
+                "apartmentCount": 15
+              },
+              {
+                "block": "C",
+                "apartmentCount": 15
+              },
+              {
+                "block": "E",
+                "apartmentCount": 15
+              },
+              {
+                "apartmentCount": 15,
+                "block": "F"
+              },
+              {
+                "apartmentCount": 15,
+                "block": "G"
+              },
+              {
+                "apartmentCount": 15,
+                "block": "H"
+              },
+              {
+                "apartmentCount": 15,
+                "block": "I"
+              }
+            ]
+          }
+        },
+        {
+          "path": "sites/site-viva-1",
+          "id": "site-viva-1",
+          "data": {
+            "adminName": "Ahmet Karahan",
+            "isDemo": true,
+            "id": "site-viva-1",
+            "securityCount": 6,
+            "district": "Üsküdar",
+            "blocks": [
+              {
+                "block": "A",
+                "apartmentCount": 15
+              },
+              {
+                "block": "B",
+                "apartmentCount": 15
+              },
+              {
+                "block": "C",
+                "apartmentCount": 15
+              },
+              {
+                "block": "E",
+                "apartmentCount": 15
+              },
+              {
+                "apartmentCount": 15,
+                "block": "F"
+              },
+              {
+                "block": "G",
+                "apartmentCount": 15
+              },
+              {
+                "apartmentCount": 15,
+                "block": "H"
+              },
+              {
+                "block": "I",
+                "apartmentCount": 15
+              }
+            ],
+            "name": "VİVA REZİDANS & EVLERİ",
+            "securityPhone": "+90 532 999 88 77",
+            "apartmentCount": 120,
+            "securityPasswordHash": "1234",
+            "city": "İstanbul",
+            "migratedAt": "2026-11-08T10:07:48.142Z",
+            "address": "Çamlıca Mah. Akasya Sok. No: 14",
+            "adminEmail": "yonetim@vivaresidence.com",
+            "adminPhone": "+90 532 100 20 30",
+            "blockCount": 8
+          }
+        }
+      ]
+    },
+    "sites/site-mw656a9j/residents": {
+      "count": 1,
+      "documents": [
+        {
+          "path": "sites/site-mw656a9j/residents/res-mw7odlv5-v3cq",
+          "id": "res-mw7odlv5-v3cq",
+          "data": {
+            "registeredAt": "2026-11-08T10:14:13.745Z",
+            "password": "a665a45920422f9d417e4867efdc4fb8a04a1f3fff1fa07e998e86f7f7a27ae3",
+            "username": "musa.gündoğdu.",
+            "apartment": "4",
+            "id": "res-mw7odlv5-v3cq",
+            "siteId": "site-mw656a9j",
+            "phone": "5321223222",
+            "smsVerified": true,
+            "notificationPreference": "app",
+            "fullName": "Musa Gündoğdu",
+            "block": "A"
+          }
+        }
+      ]
+    },
+    "sites/site-mw656a9j/guards": {
+      "count": 6,
+      "documents": [
+        {
+          "path": "sites/site-mw656a9j/guards/sec-1-1794040133239",
+          "id": "sec-1-1794040133239",
+          "data": {
+            "surname": "Kaya",
+            "name": "Ahmet",
+            "id": "sec-1-1794040133239",
+            "siteId": "site-mw656a9j",
+            "phone": "+90 532 999 00 01",
+            "username": "guvenlik1",
+            "isActive": true
+          }
+        },
+        {
+          "path": "sites/site-mw656a9j/guards/sec-2-1794040133239",
+          "id": "sec-2-1794040133239",
+          "data": {
+            "username": "guvenlik2",
+            "id": "sec-2-1794040133239",
+            "isActive": true,
+            "name": "Mehmet",
+            "surname": "Demir",
+            "phone": "+90 532 999 00 02",
+            "siteId": "site-mw656a9j"
+          }
+        },
+        {
+          "path": "sites/site-mw656a9j/guards/sec-3-1794040133239",
+          "id": "sec-3-1794040133239",
+          "data": {
+            "username": "guvenlik3",
+            "name": "Ali",
+            "isActive": true,
+            "phone": "+90 532 999 00 03",
+            "id": "sec-3-1794040133239",
+            "surname": "Öztürk",
+            "siteId": "site-mw656a9j"
+          }
+        },
+        {
+          "path": "sites/site-mw656a9j/guards/sec-4-1794040133239",
+          "id": "sec-4-1794040133239",
+          "data": {
+            "id": "sec-4-1794040133239",
+            "name": "Mustafa",
+            "phone": "+90 532 999 00 04",
+            "siteId": "site-mw656a9j",
+            "isActive": true,
+            "surname": "Yılmaz",
+            "username": "guvenlik4"
+          }
+        },
+        {
+          "path": "sites/site-mw656a9j/guards/sec-5-1794040133239",
+          "id": "sec-5-1794040133239",
+          "data": {
+            "name": "Serkan",
+            "phone": "+90 532 999 00 05",
+            "siteId": "site-mw656a9j",
+            "surname": "Çelik",
+            "id": "sec-5-1794040133239",
+            "isActive": true,
+            "username": "guvenlik5"
+          }
+        },
+        {
+          "path": "sites/site-mw656a9j/guards/sec-6-1794040133239",
+          "id": "sec-6-1794040133239",
+          "data": {
+            "username": "guvenlik6",
+            "isActive": true,
+            "name": "Onur",
+            "id": "sec-6-1794040133239",
+            "surname": "Şahin",
+            "siteId": "site-mw656a9j",
+            "phone": "+90 532 999 00 06"
+          }
+        }
+      ]
+    },
+    "sites/site-mw656a9j/admins": {
+      "count": 1,
+      "documents": [
+        {
+          "path": "sites/site-mw656a9j/admins/adm-1-1794040133239",
+          "id": "adm-1-1794040133239",
+          "data": {
+            "name": "Murat",
+            "siteId": "site-mw656a9j",
+            "id": "adm-1-1794040133239",
+            "permissions": [
+              "all",
+              "security_manage",
+              "resident_manage",
+              "reports",
+              "settings"
+            ],
+            "phone": "+90 532 100 00 01",
+            "role": "Bina Yöneticisi",
+            "email": "yonetim@site.com",
+            "surname": "Yıldız"
+          }
+        }
+      ]
+    },
+    "sites/site-mw656a9j/dues": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-mw656a9j/timeRecords": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-mw656a9j/payrollRecords": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-mw656a9j/orders": {
+      "count": 3,
+      "documents": [
+        {
+          "path": "sites/site-mw656a9j/orders/ord-mw69y1os",
+          "id": "ord-mw69y1os",
+          "data": {
+            "id": "ord-mw69y1os",
+            "courierName": "Kurye",
+            "securityApproved": true,
+            "residentName": "Hakan Erdem",
+            "approvedBySecurityAt": "Bugün 14:03",
+            "siteId": "site-mw656a9j",
+            "company": "DOMINO'S",
+            "status": "onaylandi",
+            "guardAcknowledged": true,
+            "createdAt": "Bugün 13:42",
+            "block": "H",
+            "apartment": "4"
+          }
+        },
+        {
+          "path": "sites/site-mw656a9j/orders/ord-mw7eeqs9",
+          "id": "ord-mw7eeqs9",
+          "data": {
+            "id": "ord-mw7eeqs9",
+            "company": "HEMEN BURADAN DOMINO'S",
+            "courierName": "Kurye",
+            "approvedBySecurityAt": "Bugün 13:14",
+            "residentName": "Canan Güneş",
+            "guardAcknowledged": true,
+            "siteId": "site-mw656a9j",
+            "securityApproved": true,
+            "status": "onaylandi",
+            "apartment": "4",
+            "block": "C",
+            "createdAt": "Bugün 08:35"
+          }
+        },
+        {
+          "path": "sites/site-mw656a9j/orders/ord-mw7of447",
+          "id": "ord-mw7of447",
+          "data": {
+            "approvedBySecurityAt": "Bugün 13:16",
+            "apartment": "4",
+            "courierName": "Kurye",
+            "createdAt": "Bugün 13:15",
+            "siteId": "site-mw656a9j",
+            "residentName": "Musa Gündoğdu",
+            "securityApproved": true,
+            "guardAcknowledged": true,
+            "company": "MİGROS",
+            "id": "ord-mw7of447",
+            "status": "onaylandi",
+            "block": "A"
+          }
+        }
+      ]
+    },
+    "sites/site-mw656a9j/cargos": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-mw656a9j/guests": {
+      "count": 1,
+      "documents": [
+        {
+          "path": "sites/site-mw656a9j/guests/gst-mw6a1l85",
+          "id": "gst-mw6a1l85",
+          "data": {
+            "residentResponse": "CAFEDEYIM"
+          }
+        }
+      ]
+    },
+    "sites/site-mw656a9j/facilityEntries": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-mw656a9j/suggestions": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-mw656a9j/inviteCodes": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-viva-1/residents": {
+      "count": 28,
+      "documents": [
+        {
+          "path": "sites/site-viva-1/residents/res-a1",
+          "id": "res-a1",
+          "data": {
+            "apartment": "1",
+            "block": "A",
+            "phone": "+90 532 100 20 30",
+            "id": "res-a1",
+            "siteId": "site-viva-1",
+            "fullName": "Ahmet Karahan",
+            "smsVerified": true
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-a2",
+          "id": "res-a2",
+          "data": {
+            "apartment": "3",
+            "block": "A",
+            "siteId": "site-viva-1",
+            "fullName": "Selin Demirtaş",
+            "id": "res-a2",
+            "smsVerified": true,
+            "phone": "+90 533 222 33 44"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-a3",
+          "id": "res-a3",
+          "data": {
+            "siteId": "site-viva-1",
+            "block": "A",
+            "fullName": "Ufuk Gültekin",
+            "id": "res-a3",
+            "apartment": "5",
+            "phone": "+90 535 777 88 99",
+            "smsVerified": true
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-a4",
+          "id": "res-a4",
+          "data": {
+            "id": "res-a4",
+            "smsVerified": true,
+            "phone": "+90 542 333 44 55",
+            "fullName": "Ceren Yılmaz",
+            "block": "A",
+            "siteId": "site-viva-1",
+            "apartment": "8"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-a5",
+          "id": "res-a5",
+          "data": {
+            "fullName": "Mert Aksoy",
+            "id": "res-a5",
+            "siteId": "site-viva-1",
+            "phone": "+90 531 444 55 66",
+            "block": "A",
+            "apartment": "14",
+            "smsVerified": true
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-b1",
+          "id": "res-b1",
+          "data": {
+            "smsVerified": true,
+            "id": "res-b1",
+            "fullName": "Bülent Şahin",
+            "phone": "+90 532 555 66 77",
+            "block": "B",
+            "siteId": "site-viva-1",
+            "apartment": "2"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-b2",
+          "id": "res-b2",
+          "data": {
+            "phone": "+90 533 666 77 88",
+            "smsVerified": true,
+            "fullName": "Zeynep Koç",
+            "id": "res-b2",
+            "block": "B",
+            "siteId": "site-viva-1",
+            "apartment": "7"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-b3",
+          "id": "res-b3",
+          "data": {
+            "phone": "+90 535 888 99 00",
+            "smsVerified": true,
+            "fullName": "Burak Tan",
+            "id": "res-b3",
+            "siteId": "site-viva-1",
+            "block": "B",
+            "apartment": "11"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-b4",
+          "id": "res-b4",
+          "data": {
+            "phone": "+90 541 222 33 44",
+            "smsVerified": true,
+            "apartment": "15",
+            "id": "res-b4",
+            "fullName": "İrem Çetin",
+            "siteId": "site-viva-1",
+            "block": "B"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-c1",
+          "id": "res-c1",
+          "data": {
+            "id": "res-c1",
+            "fullName": "Canan Güneş",
+            "siteId": "site-viva-1",
+            "phone": "+90 532 777 11 22",
+            "block": "C",
+            "apartment": "4",
+            "smsVerified": true
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-c2",
+          "id": "res-c2",
+          "data": {
+            "apartment": "9",
+            "fullName": "Cem Yıldırım",
+            "phone": "+90 533 888 22 33",
+            "id": "res-c2",
+            "block": "C",
+            "siteId": "site-viva-1",
+            "smsVerified": true
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-c3",
+          "id": "res-c3",
+          "data": {
+            "fullName": "Cansu Öztürk",
+            "block": "C",
+            "apartment": "15",
+            "smsVerified": true,
+            "siteId": "site-viva-1",
+            "id": "res-c3",
+            "phone": "+90 536 999 33 44"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-e1",
+          "id": "res-e1",
+          "data": {
+            "block": "E",
+            "apartment": "3",
+            "siteId": "site-viva-1",
+            "fullName": "Emre Kılıç",
+            "phone": "+90 532 444 66 88",
+            "id": "res-e1",
+            "smsVerified": true
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-e2",
+          "id": "res-e2",
+          "data": {
+            "phone": "+90 533 555 77 99",
+            "fullName": "Elif Doğan",
+            "apartment": "8",
+            "id": "res-e2",
+            "smsVerified": true,
+            "siteId": "site-viva-1",
+            "block": "E"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-e3",
+          "id": "res-e3",
+          "data": {
+            "phone": "+90 535 666 88 00",
+            "block": "E",
+            "fullName": "Ece Aydın",
+            "apartment": "12",
+            "id": "res-e3",
+            "siteId": "site-viva-1",
+            "smsVerified": true
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-f1",
+          "id": "res-f1",
+          "data": {
+            "id": "res-f1",
+            "apartment": "5",
+            "smsVerified": true,
+            "phone": "+90 532 111 44 77",
+            "block": "F",
+            "siteId": "site-viva-1",
+            "fullName": "Faruk Aslan"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-f2",
+          "id": "res-f2",
+          "data": {
+            "apartment": "10",
+            "phone": "+90 533 222 55 88",
+            "fullName": "Fatma Tekin",
+            "smsVerified": true,
+            "block": "F",
+            "id": "res-f2",
+            "siteId": "site-viva-1"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-f3",
+          "id": "res-f3",
+          "data": {
+            "block": "F",
+            "apartment": "14",
+            "siteId": "site-viva-1",
+            "phone": "+90 536 333 66 99",
+            "id": "res-f3",
+            "smsVerified": true,
+            "fullName": "Fırat Bilgin"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-g1",
+          "id": "res-g1",
+          "data": {
+            "fullName": "Gamze Çelik",
+            "phone": "+90 532 999 11 33",
+            "apartment": "2",
+            "siteId": "site-viva-1",
+            "block": "G",
+            "id": "res-g1",
+            "smsVerified": true
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-g2",
+          "id": "res-g2",
+          "data": {
+            "smsVerified": true,
+            "fullName": "Gökhan Polat",
+            "id": "res-g2",
+            "block": "G",
+            "phone": "+90 533 888 33 55",
+            "apartment": "7",
+            "siteId": "site-viva-1"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-g3",
+          "id": "res-g3",
+          "data": {
+            "id": "res-g3",
+            "fullName": "Ersan Özgür",
+            "siteId": "site-viva-1",
+            "apartment": "12",
+            "block": "G",
+            "smsVerified": true,
+            "phone": "+90 533 123 45 67"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-g4",
+          "id": "res-g4",
+          "data": {
+            "siteId": "site-viva-1",
+            "fullName": "Gülriz Akman",
+            "block": "G",
+            "smsVerified": true,
+            "id": "res-g4",
+            "apartment": "15",
+            "phone": "+90 535 777 44 66"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-h1",
+          "id": "res-h1",
+          "data": {
+            "fullName": "Hakan Erdem",
+            "phone": "+90 532 333 55 77",
+            "siteId": "site-viva-1",
+            "smsVerified": true,
+            "id": "res-h1",
+            "apartment": "4",
+            "block": "H"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-h2",
+          "id": "res-h2",
+          "data": {
+            "id": "res-h2",
+            "siteId": "site-viva-1",
+            "apartment": "9",
+            "phone": "+90 533 444 66 88",
+            "block": "H",
+            "smsVerified": true,
+            "fullName": "Hülya Şen"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-h3",
+          "id": "res-h3",
+          "data": {
+            "phone": "+90 536 555 77 99",
+            "smsVerified": true,
+            "block": "H",
+            "apartment": "14",
+            "siteId": "site-viva-1",
+            "id": "res-h3",
+            "fullName": "Halil Avcı"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-i1",
+          "id": "res-i1",
+          "data": {
+            "fullName": "İsmail Kara",
+            "siteId": "site-viva-1",
+            "apartment": "1",
+            "block": "I",
+            "id": "res-i1",
+            "phone": "+90 532 666 88 00",
+            "smsVerified": true
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-i2",
+          "id": "res-i2",
+          "data": {
+            "id": "res-i2",
+            "block": "I",
+            "smsVerified": true,
+            "phone": "+90 533 777 99 11",
+            "siteId": "site-viva-1",
+            "apartment": "6",
+            "fullName": "İpek Kurt"
+          }
+        },
+        {
+          "path": "sites/site-viva-1/residents/res-i3",
+          "id": "res-i3",
+          "data": {
+            "id": "res-i3",
+            "block": "I",
+            "smsVerified": true,
+            "fullName": "İlker Bulut",
+            "siteId": "site-viva-1",
+            "phone": "+90 535 888 00 22",
+            "apartment": "10"
+          }
+        }
+      ]
+    },
+    "sites/site-viva-1/guards": {
+      "count": 1,
+      "documents": [
+        {
+          "path": "sites/site-viva-1/guards/sec-1",
+          "id": "sec-1",
+          "data": {
+            "username": "guvenlik1",
+            "isActive": true,
+            "name": "Mehmet",
+            "phone": "+90 532 999 88 71",
+            "surname": "Demir",
+            "id": "sec-1",
+            "siteId": "site-viva-1"
+          }
+        }
+      ]
+    },
+    "sites/site-viva-1/admins": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-viva-1/dues": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-viva-1/timeRecords": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-viva-1/payrollRecords": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-viva-1/orders": {
+      "count": 1,
+      "documents": [
+        {
+          "path": "sites/site-viva-1/orders/ord-mw6c4ybq",
+          "id": "ord-mw6c4ybq",
+          "data": {
+            "block": "B",
+            "status": "bekleniyor",
+            "company": "DOMINO'S",
+            "courierName": "Kurye",
+            "apartment": "2",
+            "siteId": "site-viva-1",
+            "residentName": "Bülent Şahin",
+            "securityApproved": false,
+            "createdAt": "Bugün 14:43",
+            "id": "ord-mw6c4ybq"
+          }
+        }
+      ]
+    },
+    "sites/site-viva-1/cargos": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-viva-1/guests": {
+      "count": 1,
+      "documents": [
+        {
+          "path": "sites/site-viva-1/guests/gst-mw6c5pdi",
+          "id": "gst-mw6c5pdi",
+          "data": {
+            "residentResponse": "CAFEDEYIM"
+          }
+        }
+      ]
+    },
+    "sites/site-viva-1/facilityEntries": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-viva-1/suggestions": {
+      "count": 0,
+      "documents": []
+    },
+    "sites/site-viva-1/inviteCodes": {
+      "count": 0,
+      "documents": []
+    }
+  }
+}

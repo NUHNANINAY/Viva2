@@ -5,23 +5,23 @@
 
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
-import { Sparkles, X, ChevronRight, ShieldCheck, Crown } from 'lucide-react';
+import { Sparkles, X, ShieldCheck, CheckCircle2, ArrowRight } from 'lucide-react';
 
 export const AdScreenModal: React.FC = () => {
-  const { showAdModal, closeAdModal } = useApp();
-  const [secondsLeft, setSecondsLeft] = useState(8);
+  const { showAdModal, setShowAdModal, siteInfo } = useApp();
+  const [timeLeft, setTimeLeft] = useState(8);
 
   useEffect(() => {
     if (!showAdModal) {
-      setSecondsLeft(8);
+      setTimeLeft(8);
       return;
     }
 
     const timer = setInterval(() => {
-      setSecondsLeft((prev) => {
+      setTimeLeft((prev) => {
         if (prev <= 1) {
           clearInterval(timer);
-          closeAdModal();
+          setShowAdModal(false);
           return 0;
         }
         return prev - 1;
@@ -29,102 +29,88 @@ export const AdScreenModal: React.FC = () => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [showAdModal, closeAdModal]);
+  }, [showAdModal, setShowAdModal]);
 
   if (!showAdModal) return null;
 
-  const progressPercent = ((8 - secondsLeft) / 8) * 100;
+  const progressPercent = ((8 - timeLeft) / 8) * 100;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 backdrop-blur-md p-4 animate-in fade-in duration-300">
-      <div className="relative w-full max-w-md bg-[#1B1D25] border border-[#C5A66A]/30 rounded-3xl overflow-hidden shadow-2xl flex flex-col max-h-[92vh]">
-        {/* Top Progress bar */}
-        <div className="w-full bg-[#111318] h-1.5 overflow-hidden">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in">
+      <div className="bg-[#FFFFFF] border-2 border-[#648875] w-full max-w-md rounded-3xl p-6 shadow-2xl space-y-5 text-[#26342C] relative overflow-hidden">
+        {/* Countdown Progress Bar (8 Seconds) */}
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-[#DDE5DF]">
           <div
-            className="h-full bg-gradient-to-r from-[#C5A66A] to-[#DFC38E] transition-all duration-1000 ease-linear"
+            className="h-full bg-[#294C3C] transition-all duration-1000 ease-linear"
             style={{ width: `${progressPercent}%` }}
           />
         </div>
 
-        {/* Top Bar with Skip Button */}
-        <div className="flex items-center justify-between px-5 py-3 border-b border-[#292B36] bg-[#111318]/70">
+        {/* Top Header with Skip Button */}
+        <div className="flex items-center justify-between pt-1">
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-[#C5A66A] animate-pulse" />
-            <span className="text-[11px] font-medium tracking-wider uppercase text-[#C5A66A]">
-              Sponsorlu Tanıtım · {secondsLeft} sn
+            <span className="w-6 h-6 rounded-full bg-[#648875]/20 text-[#294C3C] flex items-center justify-center text-xs font-black">
+              {timeLeft}s
+            </span>
+            <span className="text-[11px] font-bold text-[#648875] uppercase tracking-wider">
+              Tanıtım / Bilgilendirme
             </span>
           </div>
+
           <button
-            onClick={closeAdModal}
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#292B36] hover:bg-[#C5A66A] hover:text-[#111318] text-xs font-semibold text-[#EEE9DE] transition-all duration-200 touch-target"
-            aria-label="Reklamı Atla"
+            onClick={() => setShowAdModal(false)}
+            className="text-xs font-bold text-[#26342C]/70 hover:text-[#26342C] px-3 py-1 rounded-xl border border-[#DDE5DF] bg-[#F7F8F5] hover:bg-white transition-all flex items-center gap-1.5"
+            title="Tanıtımı Atla"
           >
-            <span>Atla</span>
+            <span>Atla ({timeLeft})</span>
             <X className="w-3.5 h-3.5" />
           </button>
         </div>
 
-        {/* Ad Visual Media */}
-        <div className="relative h-56 sm:h-64 w-full overflow-hidden bg-[#111318]">
-          <img
-            src="/src/assets/images/viva_residence_night_1793969308867.jpg"
-            alt="Viva Prive Luxury Residence"
-            referrerPolicy="no-referrer"
-            className="w-full h-full object-cover object-center"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1B1D25] via-transparent to-black/30" />
-          
-          <div className="absolute top-3 left-4 flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-black/60 backdrop-blur-sm border border-[#C5A66A]/40 text-[11px] text-[#DFC38E]">
-            <Crown className="w-3.5 h-3.5 text-[#C5A66A]" />
-            <span className="font-semibold tracking-wide">VİVA PRIVÉ</span>
+        {/* Presentation Content */}
+        <div className="text-center space-y-3">
+          <div className="w-16 h-16 rounded-2xl bg-[#648875]/15 border-2 border-[#648875]/30 flex items-center justify-center mx-auto text-[#294C3C] shadow-xs">
+            <ShieldCheck className="w-8 h-8 text-[#294C3C]" />
           </div>
 
-          <div className="absolute bottom-3 left-4 right-4">
-            <p className="text-[11px] font-medium tracking-widest uppercase text-[#C5A66A]">Ayrıcalıklı Yaşam</p>
-            <h2 className="text-xl font-luxury font-bold text-[#EEE9DE] leading-tight">
-              Rezidans Kulübü & Özel Concierge
-            </h2>
-          </div>
-        </div>
-
-        {/* Ad Body Content */}
-        <div className="p-5 space-y-4 overflow-y-auto">
-          <p className="text-xs text-[#EEE9DE]/80 leading-relaxed">
-            VİVA SİTE sakinlerine özel: 7/24 özel şoförlü transfer, VIP cafe & lounge rezervasyonu, özel spa paketleri ve kuru temizleme vale servisinde %25 hoş geldin indirimi.
-          </p>
-
-          <div className="grid grid-cols-2 gap-2.5 pt-1">
-            <div className="p-3 rounded-xl bg-[#292B36]/60 border border-[#C5A66A]/20">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#DFC38E] mb-1">
-                <Sparkles className="w-3.5 h-3.5 text-[#C5A66A]" />
-                <span>Vale & Transfer</span>
-              </div>
-              <p className="text-[11px] text-[#EEE9DE]/70">Havalimanı ve şehir içi özel VIP transfer</p>
+          <div>
+            <div className="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-[#648875]/15 text-[#294C3C] text-[10px] font-bold mb-1">
+              <Sparkles className="w-3 h-3 text-[#648875]" />
+              <span>VİVA SİTE — %100 Ücretsiz ve Bağımsız</span>
             </div>
-
-            <div className="p-3 rounded-xl bg-[#292B36]/60 border border-[#C5A66A]/20">
-              <div className="flex items-center gap-1.5 text-xs font-semibold text-[#DFC38E] mb-1">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#C5A66A]" />
-                <span>Özel Lounge</span>
-              </div>
-              <p className="text-[11px] text-[#EEE9DE]/70">Sakinlere özel barista kahve ve toplantı odaları</p>
-            </div>
+            <h3 className="text-lg font-bold text-[#294C3C] font-luxury">
+              {siteInfo.name}
+            </h3>
+            <p className="text-xs text-[#26342C]/75 mt-1 leading-relaxed max-w-sm mx-auto">
+              Lüks rezidans yönetiminde kurye karşılama, anlık daire teslimat tercihi, araçlı/yaya misafir ve kargo kabulü tek bir ücretsiz çatı altında.
+            </p>
           </div>
         </div>
 
-        {/* Bottom CTA */}
-        <div className="p-4 bg-[#111318]/90 border-t border-[#292B36] flex items-center justify-between gap-3">
-          <div className="text-[11px] text-[#EEE9DE]/60">
-            <span>Tek seferlik ilk açılış gösterimi</span>
+        {/* Feature Highlights */}
+        <div className="bg-[#F7F8F5] p-3.5 rounded-2xl border border-[#DDE5DF] space-y-2 text-xs">
+          <div className="flex items-center gap-2 text-[#294C3C]">
+            <CheckCircle2 className="w-4 h-4 text-[#648875] shrink-0" />
+            <span>Zorunlu abonelik ve gizli ücretlendirme yoktur.</span>
           </div>
-          <button
-            onClick={closeAdModal}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-[#C5A66A] to-[#DFC38E] text-[#111318] text-xs font-bold hover:brightness-110 active:scale-95 transition-all shadow-md touch-target"
-          >
-            <span>Uygulamaya Geç</span>
-            <ChevronRight className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-2 text-[#294C3C]">
+            <CheckCircle2 className="w-4 h-4 text-[#648875] shrink-0" />
+            <span>Dış ücretli servislere bağımlı olmadan tam işlevsellik.</span>
+          </div>
+          <div className="flex items-center gap-2 text-[#294C3C]">
+            <CheckCircle2 className="w-4 h-4 text-[#648875] shrink-0" />
+            <span>Nizamiye ile sakin arasında anlık sesli bildirim döngüsü.</span>
+          </div>
         </div>
+
+        {/* Action Button */}
+        <button
+          onClick={() => setShowAdModal(false)}
+          className="w-full py-3.5 rounded-2xl bg-[#294C3C] hover:bg-[#648875] text-white font-bold text-xs uppercase tracking-wider transition-all shadow-md flex items-center justify-center gap-2 touch-target"
+        >
+          <span>Uygulamaya Devam Et</span>
+          <ArrowRight className="w-4 h-4" />
+        </button>
       </div>
     </div>
   );

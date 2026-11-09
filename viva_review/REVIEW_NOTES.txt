@@ -1,0 +1,23 @@
+VIVA SITE - IMPLEMENTATION NOTES
+
+Applied in this revision:
+- Site setup no longer requires entering residents in the wizard; resident onboarding is intended to happen after launch.
+- Added a resident self-registration form to the site selection screen, with block/apartment selection and duplicate-phone check within the active site's local directory.
+- Added a Registered Residents category in the admin dashboard with search and block filtering.
+- Changed site switching so it no longer silently logs in as the first resident of another site.
+- Removed fabricated default resident identity when a newly created site has no residents.
+- Added large MISAFIR and SIPARIS actions to the security console.
+- Added a quick gate flow: guest type, block, apartment, resident selection, and fast placeholder entry without requiring guest name or plate at the gate.
+- WhatsApp choices are hidden in the resident settings for this free first-release direction; app notifications remain the selected channel.
+
+IMPORTANT LIMITATIONS / NOT PRODUCTION READY:
+- This project still uses browser localStorage as its data store. New resident registrations are local to that browser/device and do NOT synchronize across residents' phones or security devices.
+- No real authentication, password recovery service, cloud database, server-side authorization, push notification delivery, SMS, WhatsApp or IVR integration was added.
+- The gate quick action currently creates a local guest entry using a placeholder identity. The requested resident-call / answer banner / multi-device security alert flow needs a shared backend and push/realtime service.
+- A 90-second foreground audible alarm cannot be guaranteed while the browser is backgrounded or the phone is locked. Native push notifications are required for dependable background delivery.
+- Build/test could not be run because node_modules were not present in the supplied ZIP and dependencies were not installed in this environment.
+
+Next required engineering milestone:
+1. Choose and connect a hosted database/auth service (e.g. Supabase/Firebase).
+2. Move site, resident, guard, guest, order and cargo data from localStorage to the database with site-level access policies.
+3. Implement real resident-to-security and security-to-resident realtime events and push notifications.

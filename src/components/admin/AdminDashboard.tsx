@@ -5,216 +5,182 @@
 
 import React, { useState } from 'react';
 import { useApp } from '../../context/AppContext';
-import {
-  LayoutDashboard,
-  Package,
-  Shield,
-  MessageSquareQuote,
-  Settings,
-  Cloud,
-  LogOut,
-  Building2,
-  Smartphone,
-  CheckCircle2,
-} from 'lucide-react';
 import { OverviewTab } from './OverviewTab';
+import { ResidentsTab } from './ResidentsTab';
 import { AdminCargoTab } from './AdminCargoTab';
-import { RequestsTab } from './RequestsTab';
 import { AdminSuggestionsTab } from './AdminSuggestionsTab';
+import { RequestsTab } from './RequestsTab';
 import { SettingsTab } from './SettingsTab';
 import { DriveReportsTab } from './DriveReportsTab';
-
-type AdminMenuTab = 'overview' | 'cargo' | 'requests' | 'suggestions' | 'settings' | 'drive';
+import {
+  Building2,
+  BarChart3,
+  Package,
+  MessageSquareQuote,
+  Users,
+  UserCheck,
+  ShieldCheck,
+  Settings,
+  HardDrive,
+  LogOut,
+  Sparkles,
+  Briefcase,
+} from 'lucide-react';
+import { SecurityGuardsTab } from './SecurityGuardsTab';
+import { OperationsTab } from './OperationsTab';
+import { StaffManagementTab } from './StaffManagementTab';
 
 export const AdminDashboard: React.FC = () => {
-  const {
-    currentSite,
-    adminUser,
-    logoutRole,
-    cargoList,
-    suggestionList,
-    isMobilePreview,
-    setIsMobilePreview,
-  } = useApp();
-
-  const [activeTab, setActiveTab] = useState<AdminMenuTab>('overview');
-
-  const pendingCargos = cargoList.filter((c) => c.status === 'guvenlikte_emanet').length;
-  const openSuggestions = suggestionList.filter(
-    (s) => s.status === 'yeni' || s.status === 'inceleniyor'
-  ).length;
+  const { siteInfo, setCurrentRole, cloudSyncStatus, theme, setTheme } = useApp();
+  const [activeTab, setActiveTab] = useState<'overview' | 'residents' | 'staff' | 'operations' | 'settings'>('overview');
 
   return (
-    <div className="min-h-screen bg-[#111318] text-[#EEE9DE] flex flex-col items-center">
-      {/* Top Header Bar */}
-      <header className="w-full bg-[#1B1D25] border-b border-[#292B36] sticky top-0 z-30 shadow-md">
-        <div className="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+    <div className="min-h-screen bg-[#F7F8F5] text-[#26342C] flex flex-col">
+      {/* Top Header */}
+      <header className="sticky top-0 z-40 bg-[#FFFFFF] border-b border-[#DDE5DF] px-4 py-3 sm:px-6 shadow-xs">
+        <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#292B36] border border-[#C5A66A]/30 flex items-center justify-center text-[#C5A66A] shrink-0 font-luxury font-bold text-base">
-              V
+            <div className="w-10 h-10 rounded-2xl bg-[#648875]/15 border border-[#648875]/30 flex items-center justify-center text-[#294C3C]">
+              <Building2 className="w-5 h-5 text-[#294C3C]" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <span className="font-luxury font-bold text-sm tracking-wide text-[#DFC38E]">
-                  VİVA SİTE
+                <h1 className="text-base font-luxury font-bold text-[#294C3C]">
+                  {siteInfo.name}
+                </h1>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#648875] text-white">
+                  Yönetim Kurulu Paneli
                 </span>
-                <span className="text-[10px] px-1.5 py-0.2 rounded bg-emerald-950/50 text-emerald-300 border border-emerald-500/40 uppercase font-semibold">
-                  Yönetim Kurulu
+                <span
+                  title={cloudSyncStatus === 'connected' ? 'Bulut Senkronize: Canlı' : 'Buluta bağlanıyor...'}
+                  className="flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200"
+                >
+                  <span className={`w-1.5 h-1.5 rounded-full ${cloudSyncStatus === 'connected' ? 'bg-emerald-500 animate-pulse' : 'bg-amber-400'}`} />
+                  <span className="hidden sm:inline">{cloudSyncStatus === 'connected' ? 'Canlı Senkron' : 'Bağlanıyor'}</span>
                 </span>
               </div>
-              <p className="text-xs text-[#EEE9DE]/60 truncate max-w-[200px] sm:max-w-xs">
-                {currentSite.name} · Site Müdürlüğü
+              <p className="text-xs text-[#26342C]/70">
+                Site Müdürü: {siteInfo.adminName} · {siteInfo.adminEmail}
               </p>
             </div>
           </div>
 
-          {/* Right actions */}
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setIsMobilePreview((prev) => !prev)}
-              className="p-2 rounded-xl bg-[#292B36] hover:bg-[#C5A66A] hover:text-[#111318] text-[#EEE9DE]/70 transition-colors touch-target"
-              title="Görünüm modu değiştir"
+            {/* Theme Selector Dropdown */}
+            <select
+              value={theme}
+              onChange={(e) => setTheme(e.target.value as any)}
+              className="px-2.5 py-1.5 rounded-xl border border-[#DDE5DF] bg-white text-[11px] font-bold text-[#294C3C] cursor-pointer"
+              title="Kişisel Tema Seçimi"
             >
-              <Smartphone className="w-4 h-4" />
-            </button>
-            <button
-              onClick={logoutRole}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#292B36] hover:bg-rose-950/80 hover:text-rose-300 border border-transparent hover:border-rose-500/30 text-xs font-semibold text-[#EEE9DE]/80 transition-all touch-target"
-              title="Çıkış yap veya profil değiştir"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Çıkış</span>
-            </button>
-          </div>
-        </div>
+              <option value="sage">🌿 Adaçayı Yeşili</option>
+              <option value="fuchsia">🌸 Fuchsia</option>
+              <option value="rose">🌷 Açık Pembe</option>
+              <option value="pearl">🤍 İnci Beyaz</option>
+            </select>
 
-        {/* Manager Identity Bar (Strictly separated from resident info) */}
-        <div className="bg-[#111318] border-t border-[#292B36] px-4 py-2">
-          <div className="max-w-4xl mx-auto flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-emerald-400" />
-              <span className="font-bold text-[#EEE9DE]">{adminUser.name}</span>
-              <span className="text-[#EEE9DE]/40">·</span>
-              <span className="text-[#DFC38E] font-medium hidden sm:inline">
-                {adminUser.title}
-              </span>
-            </div>
-            <div className="flex items-center gap-2 text-[11px] text-[#EEE9DE]/60">
-              <span className="hidden sm:inline">Sakin Profilinden Bağımsız</span>
-              {adminUser.driveConnected && (
-                <span className="text-emerald-400 font-semibold flex items-center gap-1">
-                  <Cloud className="w-3 h-3" />
-                  Drive Aktif
-                </span>
-              )}
-            </div>
-          </div>
-        </div>
-
-        {/* Horizontal Navigation Menu */}
-        <div className="max-w-4xl mx-auto px-2 overflow-x-auto no-scrollbar border-t border-[#292B36]/60">
-          <div className="flex items-center gap-1 py-1 min-w-max">
+            {/* UNIVERSAL "Ana Menüye Dön" BUTTON (Requirement 1) */}
             <button
-              type="button"
-              onClick={() => setActiveTab('overview')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all touch-target whitespace-nowrap ${
-                activeTab === 'overview'
-                  ? 'bg-[#C5A66A] text-[#111318] shadow-sm font-bold'
-                  : 'text-[#EEE9DE]/70 hover:text-[#EEE9DE] hover:bg-[#292B36]/50'
-              }`}
+              onClick={() => setCurrentRole('guest')}
+              className="px-3.5 py-1.5 rounded-xl border border-[#DDE5DF] bg-white hover:bg-[#F7F8F5] text-xs font-bold text-[#294C3C] transition-all flex items-center gap-1.5 shadow-2xs cursor-pointer"
+              title="Ana Menüye / Rol Seçimine Dön"
             >
-              <LayoutDashboard className="w-4 h-4" />
-              <span>Kontrol Paneli</span>
+              <Building2 className="w-3.5 h-3.5 text-[#648875]" />
+              <span className="hidden sm:inline">Ana Menüye Dön</span>
             </button>
 
+            {/* SAFE LOGOUT ICON */}
             <button
-              type="button"
-              onClick={() => setActiveTab('cargo')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all touch-target whitespace-nowrap ${
-                activeTab === 'cargo'
-                  ? 'bg-[#C5A66A] text-[#111318] shadow-sm font-bold'
-                  : 'text-[#EEE9DE]/70 hover:text-[#EEE9DE] hover:bg-[#292B36]/50'
-              }`}
+              onClick={() => {
+                localStorage.removeItem('viva_auth_session');
+                setCurrentRole('guest');
+              }}
+              title="Güvenli Çıkış"
+              className="p-2 rounded-xl text-[#26342C]/60 hover:text-[#26342C] hover:bg-[#F7F8F5] transition-colors cursor-pointer"
             >
-              <Package className="w-4 h-4" />
-              <span>Kargo Kaydı</span>
-              {pendingCargos > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full bg-[#111318] text-[#DFC38E] text-[10px] font-bold">
-                  {pendingCargos}
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('requests')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all touch-target whitespace-nowrap ${
-                activeTab === 'requests'
-                  ? 'bg-[#C5A66A] text-[#111318] shadow-sm font-bold'
-                  : 'text-[#EEE9DE]/70 hover:text-[#EEE9DE] hover:bg-[#292B36]/50'
-              }`}
-            >
-              <Shield className="w-4 h-4" />
-              <span>Talepler</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('suggestions')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all touch-target whitespace-nowrap ${
-                activeTab === 'suggestions'
-                  ? 'bg-[#C5A66A] text-[#111318] shadow-sm font-bold'
-                  : 'text-[#EEE9DE]/70 hover:text-[#EEE9DE] hover:bg-[#292B36]/50'
-              }`}
-            >
-              <MessageSquareQuote className="w-4 h-4" />
-              <span>Öneriler</span>
-              {openSuggestions > 0 && (
-                <span className="px-1.5 py-0.2 rounded-full bg-[#111318] text-[#DFC38E] text-[10px] font-bold">
-                  {openSuggestions}
-                </span>
-              )}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('settings')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all touch-target whitespace-nowrap ${
-                activeTab === 'settings'
-                  ? 'bg-[#C5A66A] text-[#111318] shadow-sm font-bold'
-                  : 'text-[#EEE9DE]/70 hover:text-[#EEE9DE] hover:bg-[#292B36]/50'
-              }`}
-            >
-              <Settings className="w-4 h-4" />
-              <span>Site Ayarları</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => setActiveTab('drive')}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all touch-target whitespace-nowrap ${
-                activeTab === 'drive'
-                  ? 'bg-[#C5A66A] text-[#111318] shadow-sm font-bold'
-                  : 'text-[#EEE9DE]/70 hover:text-[#EEE9DE] hover:bg-[#292B36]/50'
-              }`}
-            >
-              <Cloud className="w-4 h-4" />
-              <span>Google Drive ve Raporlar</span>
+              <LogOut className="w-4 h-4" />
             </button>
           </div>
         </div>
       </header>
 
-      {/* Main Content Area */}
-      <main className="w-full max-w-4xl px-4 py-5 flex-1">
-        {activeTab === 'overview' && (
-          <OverviewTab onNavigateToTab={(tab) => setActiveTab(tab as AdminMenuTab)} />
-        )}
-        {activeTab === 'cargo' && <AdminCargoTab />}
-        {activeTab === 'requests' && <RequestsTab />}
-        {activeTab === 'suggestions' && <AdminSuggestionsTab />}
+      {/* Admin Tab Navigation - 5 Consolidated Master Tabs with Neon Glow */}
+      <div className="bg-[#FFFFFF] border-b border-[#DDE5DF] sticky top-[61px] z-30 overflow-x-auto no-scrollbar">
+        <div className="max-w-6xl mx-auto px-4 flex gap-1 sm:gap-2">
+          {/* Tab 1: Genel Bakış */}
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`py-3 px-3.5 sm:px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer neon-glow-hover ${
+              activeTab === 'overview'
+                ? 'border-[#294C3C] text-[#294C3C] neon-glow-active'
+                : 'border-transparent text-[#26342C]/65 hover:text-[#26342C]'
+            }`}
+          >
+            <BarChart3 className="w-4 h-4 text-[#648875]" />
+            <span>Genel Bakış</span>
+          </button>
+
+          {/* Tab 2: Sakinler & Aidat */}
+          <button
+            onClick={() => setActiveTab('residents')}
+            className={`py-3 px-3.5 sm:px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer neon-glow-hover ${
+              activeTab === 'residents'
+                ? 'border-[#294C3C] text-[#294C3C] neon-glow-active'
+                : 'border-transparent text-[#26342C]/65 hover:text-[#26342C]'
+            }`}
+          >
+            <UserCheck className="w-4 h-4 text-[#648875]" />
+            <span>Sakinler & Aidat & Finans</span>
+          </button>
+
+          {/* Tab 3: Personel & Puantaj */}
+          <button
+            onClick={() => setActiveTab('staff')}
+            className={`py-3 px-3.5 sm:px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer neon-glow-hover ${
+              activeTab === 'staff'
+                ? 'border-[#294C3C] text-[#294C3C] neon-glow-active'
+                : 'border-transparent text-[#26342C]/65 hover:text-[#26342C]'
+            }`}
+          >
+            <Briefcase className="w-4 h-4 text-[#648875]" />
+            <span>Personel & Puantaj</span>
+          </button>
+
+          {/* Tab 4: Operasyon */}
+          <button
+            onClick={() => setActiveTab('operations')}
+            className={`py-3 px-3.5 sm:px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer neon-glow-hover ${
+              activeTab === 'operations'
+                ? 'border-[#294C3C] text-[#294C3C] neon-glow-active'
+                : 'border-transparent text-[#26342C]/65 hover:text-[#26342C]'
+            }`}
+          >
+            <Package className="w-4 h-4 text-[#648875]" />
+            <span>Operasyon & Kapı Akışı</span>
+          </button>
+
+          {/* Tab 5: Ayarlar & Raporlar */}
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`py-3 px-3.5 sm:px-4 text-xs font-bold border-b-2 flex items-center gap-1.5 whitespace-nowrap transition-all cursor-pointer neon-glow-hover ${
+              activeTab === 'settings'
+                ? 'border-[#294C3C] text-[#294C3C] neon-glow-active'
+                : 'border-transparent text-[#26342C]/65 hover:text-[#26342C]'
+            }`}
+          >
+            <Settings className="w-4 h-4 text-[#648875]" />
+            <span>Ayarlar & Modüller & Raporlar</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Main Tab Content */}
+      <main className="max-w-6xl w-full mx-auto p-4 sm:p-6 flex-1">
+        {activeTab === 'overview' && <OverviewTab />}
+        {activeTab === 'residents' && <ResidentsTab />}
+        {activeTab === 'staff' && <StaffManagementTab />}
+        {activeTab === 'operations' && <OperationsTab />}
         {activeTab === 'settings' && <SettingsTab />}
-        {activeTab === 'drive' && <DriveReportsTab />}
       </main>
     </div>
   );
